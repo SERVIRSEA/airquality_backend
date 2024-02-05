@@ -10,10 +10,8 @@ For a DATA_DIR base named /srv/aqx, with the parameters fire, aod_terra and aod_
 """
   Import thredds configurations - CATALOG, WMS URL PATH, POSTGRESQL define in settings
 """
-from django.conf import settings
 
 DATA_DIR = 'static/aq_dir/'
-
 LOG_DIR = 'static/log/'
 
 """
@@ -21,19 +19,18 @@ THREDDS_CATALOG: Indicates the base URL for the directory containing the differe
   This is a publicly accessible THREDDS server (not necessarily residing in the same server or even on the same network)
 """
 
-THREDDS_CATALOG = settings.THREDDS_CATALOG
-
-THREDDS_OPANDAP = settings.THREDDS_OPANDAP
-
 """
 THREDDS_wms: Indicates the basic form of WMS requests to the server
   This is a publicly accessible THREDDS server (not necessarily residing in the same server or even on the same network)
 """
+# connection = [{'host': settings.POSTGRES_HOST},
+#               {'user': settings.POSTGRES_USER},
+#               {'password': settings.POSTGRES_PASS},
+#               {'dbname': settings.POSTGRES_DB}]
+# connection = [{'host': '216.218.240.226'},
+#               {'user': 'postgres'},
+#               {'password': 'gvfuru:u',},
+#               {'dbname': 'nrtdatapcd'}]
 
-THREDDS_wms = settings
-connection = [{'host': settings.POSTGRES_HOST},
-              {'user': settings.POSTGRES_USER},
-              {'password': settings.POSTGRES_PASS},
-              {'dbname': settings.POSTGRES_DB}]
 
 HDF5_USE_FILE_LOCKING=False

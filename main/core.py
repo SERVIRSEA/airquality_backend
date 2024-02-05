@@ -12,23 +12,27 @@ import shapely.geometry
 import shapely
 import netCDF4
 import time
-from shapely.geometry import Polygon
+from shapely.geometry import shape, Polygon
 import logging
 from datetime import datetime, timedelta
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from django.conf import settings
 import xarray as xr
-from django.db import connection
+from django.db import connections
 from django.views.decorators.csrf import csrf_exempt
 from geopy.distance import great_circle
 from geopy.distance import geodesic
 from itertools import *
-from main.config import THREDDS_CATALOG, THREDDS_wms, DATA_DIR, LOG_DIR, THREDDS_OPANDAP
+from main.config import DATA_DIR, LOG_DIR
+
+THREDDS_CATALOG = settings.THREDDS_CATALOG
+THREDDS_OPANDAP = settings.THREDDS_OPANDAP
+THREDDS_wms = settings.THREDDS_WMS_URL
 
 def generate_variables_meta():
     """Generate Variables Metadata from the Var Info text"""
-    db_file = os.path.join(settings.BASE_DIR, 'air-quality-explorer/static/data/var_info.txt')
+    db_file = os.path.join(settings.BASE_DIR, 'static/data/var_info.txt')
     variable_list = []
     with open(db_file, mode='r') as f:
         f.readline()  # Skip first line
@@ -143,28 +147,40 @@ def get_time(freq, run_type, run_date):
     ts = []
     json_obj = {}
 
-    """Make sure you have this path for all the run_types(/home/tethys/aq_dir/fire/combined/combined.nc)"""
-    #infile = os.path.join(DATA_DIR, run_type, run_date)
+    try:
+        # Make sure you have this path for all the run_types (/home/tethys/aq_dir/fire/combined/combined.nc)
+        # infile = os.path.join(DATA_DIR, run_type, run_date)
+        infile = os.path.join(THREDDS_OPANDAP, run_type, run_date)
+        nc_fid = netCDF4.Dataset(infile, 'r')  # Reading the netCDF file
+        lis_var = nc_fid.variables
+        time = nc_fid.variables['time'][:]
 
-    infile = THREDDS_OPANDAP+"/"+run_type+"/"+run_date
-    nc_fid = netCDF4.Dataset(infile, 'r')  # Reading the netCDF file
-    lis_var = nc_fid.variables
-    time = nc_fid.variables['time'][:]
-    for timestep, v in enumerate(time):
-        dt_str = netCDF4.num2date(lis_var['time'][timestep], units=lis_var['time'].units,
-                                  calendar=lis_var['time'].calendar)
+        for timestep, v in enumerate(time):
+            dt_str = netCDF4.num2date(lis_var['time'][timestep], units=lis_var['time'].units,
+                                      calendar=lis_var['time'].calendar)
 
-        dt_str = datetime.strptime(dt_str.isoformat(),"%Y-%m-%dT%H:%M:%S")
+            dt_str = datetime.strptime(dt_str.isoformat(), "%Y-%m-%dT%H:%M:%S")
 
-        time_stamp = calendar.timegm(dt_str.utctimetuple()) * 1000
-        ts.append(datetime.strftime(dt_str,'%Y-%m-%dT%H:%M:%SZ'))
-    ts.sort()
-    json_obj["times"] = ts
+            time_stamp = calendar.timegm(dt_str.utctimetuple()) * 1000
+            ts.append(datetime.strftime(dt_str, '%Y-%m-%dT%H:%M:%SZ'))
+
+        ts.sort()
+        json_obj["status"] = 'Success'
+        json_obj["timestamp"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        json_obj["message"] = 'Data retrieval successful'
+        json_obj["data"] = {"times": ts}
+
+    except Exception as e:
+        json_obj["status"] = 'Error'
+        json_obj["timestamp"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        json_obj["message"] = f'Error: {str(e)}'
+        json_obj["data"] = {"times": []}
+
     return json_obj
 
 def get_pt_values(s_var, geom_data, freq, run_type, run_date):
     """Helper function to generate time series for a point"""
-    logger.info("PARAMETERS : ['" + s_var + "','" + geom_data + "','" + freq + "','" + run_type + "','" + run_date+"']")
+    # logger.info("PARAMETERS : ['" + s_var + "','" + geom_data + "','" + freq + "','" + run_type + "','" + run_date+"']")
     # Empty list to store the timeseries values
     ts_plot = []
     ts_plot_pm25 = []
@@ -338,7 +354,7 @@ def get_pt_values(s_var, geom_data, freq, run_type, run_date):
         # json_obj["geos_pm25"] = ts_plot_geospm25
         json_obj["geom"] = point
         # logger.info("PLOT POINT OBJECT : " + json.dumps(json_obj["plot"]))
-        logger.info(json.dumps(json_obj["geom"]))
+        # logger.info(json.dumps(json_obj["geom"]))
     except Exception as e:
         return json_obj
     return json_obj
@@ -346,7 +362,7 @@ def get_pt_values(s_var, geom_data, freq, run_type, run_date):
 @csrf_exempt
 def get_poylgon_values(s_var, geom_data, freq, run_type, run_date):
     """Helper function to generate time series for a polygon"""
-    logger.info("PARAMETERS : ['" + s_var +"','"+ geom_data +"','"+ freq +"','"+ run_type +"','"+ run_date+"']")
+    # logger.info("PARAMETERS : ['" + s_var +"','"+ geom_data +"','"+ freq +"','"+ run_type +"','"+ run_date+"']")
     # Empty list to store the timeseries values
     ts_plot = []
     json_obj_arr =[]
@@ -356,7 +372,7 @@ def get_poylgon_values(s_var, geom_data, freq, run_type, run_date):
             json_obj = {}
             # Defining the lat and lon from the coords string
             poly_geojson = Polygon(json.loads(json.dumps(g_data)))
-            shape_obj = shapely.geometry.asShape(poly_geojson)
+            shape_obj = shape(poly_geojson)
             bounds = poly_geojson.bounds
             miny = float(bounds[0])
             minx = float(bounds[1])
@@ -426,16 +442,16 @@ def get_poylgon_values(s_var, geom_data, freq, run_type, run_date):
 
             json_obj["plot"] = ts_plot
             json_obj["geom"] = geom
-            if len(ts_plot) == 0:
-                logger.warn("The selected polygon has no data")
-            else:
-                logger.info("PLOT POLYGON OBJECT : " + json.dumps(json_obj["plot"]))
+            # if len(ts_plot) == 0:
+            #     logger.warn("The selected polygon has no data")
+            # else:
+            #     logger.info("PLOT POLYGON OBJECT : " + json.dumps(json_obj["plot"]))
             # logger.info(json.dumps(json_obj["geom"]))
             json_obj_arr.append(json_obj)
     else:
         json_obj = {}
         poly_geojson = Polygon(json.loads(geom_data))
-        shape_obj = shapely.geometry.asShape(poly_geojson)
+        shape_obj = shape(poly_geojson)
         bounds = poly_geojson.bounds
         miny = float(bounds[0])
         minx = float(bounds[1])
@@ -506,15 +522,15 @@ def get_poylgon_values(s_var, geom_data, freq, run_type, run_date):
 
         json_obj["plot"] = ts_plot
         json_obj["geom"] = geom
-        if len(ts_plot) == 0:
-            logger.warn("The selected polygon has no data")
-        else:
-            logger.info("PLOT POLYGON OBJECT : " + json.dumps(json_obj["plot"]))
+        # if len(ts_plot) == 0:
+        #     logger.warn("The selected polygon has no data")
+        # else:
+        #     logger.info("PLOT POLYGON OBJECT : " + json.dumps(json_obj["plot"]))
         # logger.info(json.dumps(json_obj["geom"]))
         return json_obj
     return json_obj_arr
 
-#database utils
+# database utils
 def get_station_data():
     with connection.cursor() as cursor:
         sql = """SELECT s.rid,s.station_id,s.name_en, s.lat, s."long" as longitude,m.pm25,max(datetime) latest_date
@@ -543,60 +559,74 @@ def get_station_data():
         connection.close()
         return stations
 
-
 def get_current_station(obs_date):
-    # current_time = datetime.now().strftime('%H:%M:%S')
-    # enddatetime_str = (obs_date + " "+ datetime.now().strftime('%H:%M:%S'))
-    # strtodate =  datetime.strptime(enddatetime_str, '%Y-%m-%d %H:%M:%S').date()
-    # _3hourago = strtodate - timedelta(hours = 3)
-    # last_hour_date_time = _3hourago.strftime('%Y-%m-%d %H:%M:%S')
-    with connection.cursor() as cursor:
-        # sql = """SELECT DISTINCT ON (s.station_id) s.station_id, s.rid, m.datetime, s.lat, s.long, m.pm25, s.name_en, m.aqi, m.aqi_level
-        #         from stations s, nrt_measurements m
-        #         where s.station_id = m.station_id and pm25 is not null
-        #         and m.datetime between '"""+last_hour_date_time+"""' and '"""+enddatetime_str+"""' ORDER BY s.station_id, m.datetime DESC"""
+    try:
+        with connections['pcd_database'].cursor() as cursor:
+            sql = """
+                SELECT tbl1.station_id, tbl1.rid, tbl1.datetime, tbl1.lat, tbl1.long, tbl1.pm25, tbl1.name_en, tbl2.aqi, tbl2.aqi_level
+                FROM (
+                    SELECT DISTINCT ON (s.station_id) s.station_id, s.rid, m.datetime, s.lat, s.long, m.pm25, s.name_en
+                    FROM stations s, nrt_measurements m
+                    WHERE s.station_id = m.station_id AND m.pm25 IS NOT null AND m.datetime <= %s
+                    ORDER BY s.station_id, m.datetime DESC
+                ) AS tbl1
+                LEFT JOIN measurements tbl2 ON tbl1.station_id = tbl2.station_id AND tbl2.datetime = tbl1.datetime
+            """
+            
+            cursor.execute(sql, [obs_date])
+            data = cursor.fetchall()
 
-        # sql = """SELECT DISTINCT ON (s.station_id) s.station_id, s.rid, m.datetime, s.lat, s.long, m.pm25, s.name_en, m.aqi, m.aqi_level
-        #             from stations s, nrt_measurements m
-        #             where s.station_id = m.station_id and pm25 is not null and m.datetime = '"""+obs_date+"""'
-        #             ORDER BY s.station_id, m.datetime DESC"""
+            stations = []
+            for row in data:
+                rid = row[1]
+                name = row[6]
+                station_id = row[0]
+                lat = row[3]
+                lon = row[4]
+                pm25 = row[5]
+                latest_date = row[2]
+                aqi = row[7]
+                aqi_level = row[8]
+                selected_date = datetime.strptime(obs_date, '%Y-%m-%d %H:%M:%S')
+                difference = latest_date - selected_date
 
-        sql = """SELECT tbl1.station_id, tbl1.rid, tbl1.datetime, tbl1.lat, tbl1.long, tbl1.pm25, tbl1.name_en, tbl2.aqi, tbl2.aqi_level FROM
-        (SELECT DISTINCT ON (s.station_id) s.station_id, s.rid, m.datetime, s.lat, s.long, m.pm25, s.name_en
-        FROM stations s, nrt_measurements m
-        WHERE s.station_id = m.station_id AND m.pm25 IS NOT null AND m.datetime <= '"""+obs_date+"""'
-        ORDER BY s.station_id, m.datetime DESC) AS tbl1
-        LEFT JOIN measurements tbl2 ON tbl1.station_id = tbl2.station_id AND tbl2.datetime = tbl1.datetime""";
+                if difference.days == -1 or difference.days == 0:
+                    stations.append({
+                        'rid': rid,
+                        'station_id': str(station_id),
+                        'latest_date': str(latest_date),
+                        'lon': lon,
+                        'lat': lat,
+                        'pm25': pm25,
+                        'name': name,
+                        'aqi': aqi,
+                        'aqi_level': aqi_level
+                    })
 
-        cursor.execute(sql)
-        data = cursor.fetchall()
-        stations=[]
-        for row in data:
-            rid = row[1]
-            name=row[6]
-            station_id = row[0]
-            lat = row[3]
-            lon = row[4]
-            pm25=row[5]
-            latest_date=row[2]
-            aqi=row[7]
-            aqi_level=row[8]
-            selected_date= datetime.strptime(obs_date, '%Y-%m-%d %H:%M:%S')
-            difference = latest_date - selected_date
-            if difference.days == -1 or difference.days==0:
-                stations.append({
-                    'rid': rid,
-                    'station_id': str(station_id),
-                    'latest_date': str(latest_date),
-                    'lon': lon,
-                    'lat': lat,
-                    'pm25': pm25,
-                    'name':name,
-                    'aqi': aqi,
-                    'aqi_level': aqi_level
-                })
-        connection.close()
-        return stations
+            if not stations:
+                result = {
+                    'status': 'Error',
+                    'message': 'No data found for the specified observation date',
+                    'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'data': []
+                }
+            else:
+                result = {
+                    'status': 'Success',
+                    'message': 'Data retrieval successful',
+                    'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'data': stations
+                }
+
+    except Exception as e:
+        result = {
+            'status': 'Error',
+            'message': f'Error: {str(e)}',
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'data': []
+        }
+
+    return result
 
 def get_pm25_data(s_var, run_type, run_date, station, lat, lon):
     try:
@@ -632,40 +662,42 @@ def get_pm25_data(s_var, run_type, run_date, station, lat, lon):
 
 
 def get_ts(s_var, interaction, run_type, freq, run_date, geom_data):
-    """Get Time Series for Point and Polygon"""
-
     return_obj = {}
 
-    """If a point is clicked on the map, get the values for graph"""
-    if interaction == 'Point':
-        try:
+    try:
+        if interaction == 'Point':
             graph = get_pt_values(s_var, geom_data, freq, run_type, run_date)
+            return_obj["status"] = "Success"
+            return_obj["message"] = "Data retrieval successful"
+            return_obj["timestamp"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             return_obj["data"] = graph
-            return_obj["success"] = "success"
-        except Exception as e:
-            return_obj["error"] = "Error processing request: "+ str(e)
-    """If a polygon is selected on the map, get the values for graph"""
-    if interaction == 'Polygon':
-        try:
-            graph = get_poylgon_values(s_var, geom_data, freq, run_type, run_date)
-            return_obj["data"] = graph
-            return_obj["success"] = "success"
-        except Exception as e:
-            return_obj["error"] = "Error processing request: "+ str(e)
-    if interaction == 'Station':
-        x=geom_data.split(',')
-        station = x[0]
-        lat = x[1]
-        lon = x[2]
-        run_date = run_date
-        try:
-            graph = get_pm25_data(s_var,run_type,run_date,station,lat,lon )
-            return_obj["data"] = graph
-            return_obj["success"] = "success"
-        except Exception as e:
-            return_obj["error"] = "Error processing request: "+ str(e)
 
-    dump = json.dumps(return_obj)
+        elif interaction == 'Polygon':
+            graph = get_poylgon_values(s_var, geom_data, freq, run_type, run_date)
+            return_obj["status"] = "Success"
+            return_obj["message"] = "Data retrieval successful"
+            return_obj["timestamp"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            return_obj["data"] = graph
+
+        elif interaction == 'Station':
+            x = geom_data.split(',')
+            station = x[0]
+            lat = x[1]
+            lon = x[2]
+            graph = get_pm25_data(s_var, run_type, run_date, station, lat, lon)
+            return_obj["status"] = "Success"
+            return_obj["message"] = "Data retrieval successful"
+            return_obj["timestamp"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            return_obj["data"] = graph
+
+        else:
+            return_obj["status"] = "Error"
+            return_obj["message"] = "Invalid interaction type"
+
+    except Exception as e:
+        return_obj["status"] = "Error"
+        return_obj["message"] = f"Error processing request: {str(e)}"
+
     return return_obj
 
 

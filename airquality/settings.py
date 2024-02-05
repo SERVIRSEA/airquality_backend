@@ -9,7 +9,6 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
-DB = os.environ.get('DB_NAME')
 
 DEBUG = os.environ.get('DEBUG') == 'True'
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
@@ -114,15 +113,19 @@ POSTGRES_USER=os.environ.get('POSTGRES_USER')
 POSTGRES_PASS=os.environ.get('POSTGRES_PASS')
 POSTGRES_DB=os.environ.get('POSTGRES_DB')
 POSTGRES_PORT=os.environ.get('POSTGRES_PORT')
+
+PCD_POSTGRES_HOST=os.environ.get('PCD_POSTGRES_HOST')
+PCD_POSTGRES_USER=os.environ.get('PCD_POSTGRES_USER')
+PCD_POSTGRES_PASS=os.environ.get('PCD_POSTGRES_PASS')
+PCD_POSTGRES_DB=os.environ.get('PCD_POSTGRES_DB')
+PCD_POSTGRES_PORT=os.environ.get('PCD_POSTGRES_PORT')
+
 THREDDS_WMS_URL=os.environ.get('THREDDS_WMS_URL')
 THREDDS_CATALOG=os.environ.get('THREDDS_CATALOG')
 THREDDS_OPANDAP=os.environ.get('THREDDS_OPANDAP')
 
+
 DATABASES = {
-    # "default": {
-    #     "ENGINE": "django.db.backends.sqlite3",
-    #     "NAME": BASE_DIR / "db.sqlite3",
-    # }
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': POSTGRES_DB,
@@ -130,5 +133,13 @@ DATABASES = {
         'PASSWORD': POSTGRES_PASS,
         'HOST': POSTGRES_HOST,
         'PORT': POSTGRES_PORT,
-    }
+    },
+    'pcd_database': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': PCD_POSTGRES_DB,
+        'USER': PCD_POSTGRES_USER,
+        'PASSWORD': PCD_POSTGRES_PASS,
+        'HOST': PCD_POSTGRES_HOST,
+        'PORT': PCD_POSTGRES_PORT,
+    },
 }

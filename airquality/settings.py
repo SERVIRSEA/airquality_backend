@@ -124,7 +124,6 @@ THREDDS_WMS_URL=os.environ.get('THREDDS_WMS_URL')
 THREDDS_CATALOG=os.environ.get('THREDDS_CATALOG')
 THREDDS_OPANDAP=os.environ.get('THREDDS_OPANDAP')
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',

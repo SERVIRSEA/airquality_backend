@@ -14,13 +14,13 @@ Ensure you have the following prerequisites installed:
 
 ### Steps
 
-1. **Step 1: Update VM Packages**
+**Step 1: Update VM Packages**
     ```bash
     ssh vm_username@ip # put the login password 
     sudo apt update && sudo apt upgrade -y
     ```
 
-2. **Step 2: Check Python Version and Upgrade to >= 3.11**
+**Step 2: Check Python Version and Upgrade to >= 3.11**
     ```bash
     # Add deadsnake repo
     sudo add-apt-repository ppa:deadsnakes/ppa
@@ -55,14 +55,14 @@ Ensure you have the following prerequisites installed:
     sudo apt autoclean 
     sudo apt autoremove
     ```
-3. **Step - 3: Clone the airquality backend git repository**
+**Step - 3: Clone the airquality backend git repository**
     ```bash
     git clone https://github.com/SERVIRSEA/airquality_backend.git
 
     # Rename the repo
     sudo mv airquality_backend airquality
     ```
-4. **Step - 4: Create python3 virtual environment and installed necessary packages**
+**Step - 4: Create python3 virtual environment and installed necessary packages**
     ```bash  
     python3 -m venv airquality_env
 
@@ -80,7 +80,7 @@ Ensure you have the following prerequisites installed:
     pip install django psycopg2-binary numpy shapely netcdf4 xarray pillow urllib3 geopy gunicorn python-dotenv djangorestframework django-cors-headers requests
     ```
 
-5. **Step - 5: Create an .env file to manage secrets and credentials**
+**Step - 5: Create an .env file to manage secrets and credentials**
     ```bash
 
     # Change the dir again where settings.py file exist
@@ -117,7 +117,7 @@ Ensure you have the following prerequisites installed:
     THREDDS_OPANDAP=<your-thredds-opandap-path>
     ```
 
-6. **Step - 6: Run migrations, create superuser for accessing admin panel**
+**Step - 6: Run migrations, create superuser for accessing admin panel**
     ```bash
     # Navigate to main dir again where manage.py exists
     cd ..
@@ -135,7 +135,7 @@ Ensure you have the following prerequisites installed:
     # If you are are setting up in the remote server, you need additinal server configurations (see step 7 and beyond) to access the admin interface 
     ```
 
-7. **Step - 7: Configure supervisor and nginx**  
+**Step - 7: Configure supervisor and nginx**  
     ```bash
     gunicorn --bind 0.0.0.0:8000 airquality.wsgi:application
 
@@ -207,7 +207,7 @@ Ensure you have the following prerequisites installed:
     # you can now access the backend with your IP or domain
     ```
 
-8. **Step - 8: Generate authorization key in admin to secure the backend API**
+**Step - 8: Generate authorization key in admin to secure the backend API**
     ```bash
     # Login to admin panel
     http://127.0.0.1:8000/admin # if setup in local PC 

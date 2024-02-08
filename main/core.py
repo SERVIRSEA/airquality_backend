@@ -199,11 +199,8 @@ def get_pt_values(s_var, geom_data, freq, run_type, run_date):
     st_point=(stn_lat,stn_lon)
 
     try:
-        if run_type == "geos":
+        if run_type == "geos" or run_type == "geos5":
             """access netcdf file via Thredds server OPANDAP"""
-            #infile = os.path.join(THREDDS_OPANDAP, run_type, run_date)
-            infile = THREDDS_OPANDAP+"/"+ run_type+"/"+ run_date
-        elif run_type =="geos5":
             infile = THREDDS_OPANDAP+run_type+"/"+ run_date
         else:
             """Make sure you have this path for all the run_types(/home/tethys/aq_dir/fire/combined/combined.nc)"""
@@ -403,9 +400,7 @@ def get_poylgon_values(s_var, geom_data, freq, run_type, run_date):
             maxx = float(bounds[3])
 
             """Make sure you have this path for all the run_types(/home/tethys/aq_dir/fire/combined/combined.nc)"""
-            if run_type == "geos":
-                infile = THREDDS_OPANDAP + "/" + run_type + "/" + run_date
-            elif run_type == "geos5":
+            if run_type == "geos" or run_type == "geos5":
                 infile = THREDDS_OPANDAP+run_type+"/"+ run_date
             else:
                 infile = os.path.join(DATA_DIR, run_type, freq, run_date)
@@ -485,9 +480,7 @@ def get_poylgon_values(s_var, geom_data, freq, run_type, run_date):
         maxx = float(bounds[3])
 
         """Make sure you have this path for all the run_types(/home/tethys/aq_dir/fire/combined/combined.nc)"""
-        if run_type == "geos":
-            infile = THREDDS_OPANDAP + "/" + run_type + "/" + run_date
-        elif run_type == "geos5":    
+        if run_type == "geos" or run_type == "geos5":
             infile = THREDDS_OPANDAP+run_type+"/"+ run_date
         else:
             infile = os.path.join(DATA_DIR, run_type, freq, run_date)

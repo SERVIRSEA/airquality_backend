@@ -199,7 +199,7 @@ def get_pt_values(s_var, geom_data, freq, run_type, run_date):
     st_point=(stn_lat,stn_lon)
 
     try:
-        if run_type == "geos" or run_type == "geos5":
+        if run_type == "geos" or run_type == "geos5" or run_type == "vfei":
             """access netcdf file via Thredds server OPANDAP"""
             infile = THREDDS_OPANDAP+run_type+"/"+ run_date
         else:
@@ -330,6 +330,28 @@ def get_pt_values(s_var, geom_data, freq, run_type, run_date):
                     dt = datetime.strptime(dtt, '%Y-%m-%dT%H:%M:%SZ')
                     time_stamp = calendar.timegm(dt.utctimetuple()) * 1000
                     ts_plot.append([time_stamp, round(float(val))])
+        
+        elif run_type == "vfei":
+            field = nc_fid.variables[s_var][:]
+            lats = nc_fid.variables['lat'][:]
+            lons = nc_fid.variables['lon'][:]  
+            
+            lat_idx = np.abs(lats - stn_lat).argmin()  
+            lon_idx = np.abs(lons - stn_lon).argmin()  
+
+            # Initialize the variable to hold the firecount value
+            value_at_point = 0
+
+            # Try to extract the firecount value at that point
+            
+            try:
+                value_at_point = field[lat_idx]
+            except IndexError:
+                print("No value found at the specified point. Returning 0.")
+            
+            # Extract the field value at that point
+            # value_at_point = field[lat_idx]
+            ts_plot.append(value_at_point)
         else:
             field = nc_fid.variables[s_var][:]
             lats = nc_fid.variables['Latitude'][:]
@@ -359,6 +381,7 @@ def get_pt_values(s_var, geom_data, freq, run_type, run_date):
                     dt = datetime.strptime(dtt, '%Y-%m-%dT%H:%M:%SZ')
                     time_stamp = calendar.timegm(dt.utctimetuple()) * 1000
                     ts_plot.append([time_stamp, round(float(val))])
+        
 
         ts_plot.sort()
         ts_plot_pm25.sort()
@@ -385,7 +408,8 @@ def get_poylgon_values(s_var, geom_data, freq, run_type, run_date):
     # Empty list to store the timeseries values
     ts_plot = []
     json_obj_arr =[]
-    
+
+    # print(geom_data)
     if len(json.loads(geom_data)) != 5:
         geom_data=json.loads(geom_data)
         for g_data in geom_data:
@@ -400,9 +424,10 @@ def get_poylgon_values(s_var, geom_data, freq, run_type, run_date):
             maxx = float(bounds[3])
 
             """Make sure you have this path for all the run_types(/home/tethys/aq_dir/fire/combined/combined.nc)"""
-            if run_type == "geos" or run_type == "geos5":
+            if run_type == "geos" or run_type == "geos5" or run_type == "vfei":
                 infile = THREDDS_OPANDAP+run_type+"/"+ run_date
             else:
+                print("No data found")
                 infile = os.path.join(DATA_DIR, run_type, freq, run_date)
             
             nc_fid = netCDF4.Dataset(infile, 'r')
@@ -431,6 +456,19 @@ def get_poylgon_values(s_var, geom_data, freq, run_type, run_date):
                         dt = datetime.strptime(dtt, '%Y-%m-%dT%H:%M:%SZ')
                         time_stamp = calendar.timegm(dt.timetuple()) * 1000
                         ts_plot.append([time_stamp, round(float(val))])
+            
+            elif run_type == "vfei":
+                field = nc_fid.variables[s_var][:]
+                lats = nc_fid.variables['lat'][:]
+                lons = nc_fid.variables['lon'][:]
+                latli = np.argmin(np.abs(lats - minx))
+                latui = np.argmin(np.abs(lats - maxx))
+
+                lonli = np.argmin(np.abs(lons - miny))
+                lonui = np.argmin(np.abs(lons - maxy))
+                val = field[latli:latui,lonli:lonui]
+                val = np.mean(val)
+                ts_plot.append(val)
             else:
                 """Reading variables from combined.nc"""
                 lats = nc_fid.variables['Latitude'][:]  # Defining the latitude array
@@ -480,13 +518,13 @@ def get_poylgon_values(s_var, geom_data, freq, run_type, run_date):
         maxx = float(bounds[3])
 
         """Make sure you have this path for all the run_types(/home/tethys/aq_dir/fire/combined/combined.nc)"""
-        if run_type == "geos" or run_type == "geos5":
+        if run_type == "geos" or run_type == "geos5" or run_type == "vfei":
             infile = THREDDS_OPANDAP+run_type+"/"+ run_date
         else:
             infile = os.path.join(DATA_DIR, run_type, freq, run_date)
         nc_fid = netCDF4.Dataset(infile, 'r')
         lis_var = nc_fid.variables
-
+        
         if "geos" == run_type or run_type == "geos5":
             field = nc_fid.variables[s_var][:]
             lats = nc_fid.variables['lat'][:]
@@ -510,6 +548,28 @@ def get_poylgon_values(s_var, geom_data, freq, run_type, run_date):
                     dt = datetime.strptime(dtt, '%Y-%m-%dT%H:%M:%SZ')
                     time_stamp = calendar.timegm(dt.timetuple()) * 1000
                     ts_plot.append([time_stamp, round(float(val))])
+        
+        elif run_type == "vfei":
+            field = nc_fid.variables[s_var][:]
+            lats = nc_fid.variables['lat'][:]
+            lons = nc_fid.variables['lon'][:]
+
+            # Find the index of latitude and longitude corresponding to the bounding box
+            lat_idx = np.argmin(np.abs(lats - minx))
+            lon_idx = np.argmin(np.abs(lons - miny))
+            
+            # Filter values within the polygon
+            vals_within_polygon = []
+            area_value = field[lat_idx]
+            vals_within_polygon.append(area_value)
+            
+            # Check if there are valid values within the polygon
+            if len(vals_within_polygon) == 0:
+                ts_plot.append("No data available within the specified polygon.")
+            else:
+                # Calculate the mean value within the polygon
+                mean_val_within_polygon = np.mean(vals_within_polygon)
+                ts_plot.append(mean_val_within_polygon)
         else:
             """Reading variables from combined.nc"""
             lats = nc_fid.variables['Latitude'][:]  # Defining the latitude array
@@ -720,7 +780,6 @@ def get_ts(s_var, interaction, run_type, freq, run_date, geom_data):
         return_obj["message"] = f"Error processing request: {str(e)}"
 
     return return_obj
-
 
 def gen_style_legend(style):
     style_f = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'static/data/palettes/'+str(style)+'.pal')

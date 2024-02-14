@@ -23,7 +23,8 @@ def api(request):
             'get-stations',
             'get-time',
             'get-chartData',
-            'get-24hstations'
+            'get-24hstations',
+            'get-latest-date'
         ]
 
         if action in request_methods:
@@ -37,7 +38,8 @@ def api(request):
             run_date_chart = request.query_params.get('run_date_chart', '')
             run_type_chart = request.query_params.get('run_type_chart', '')
             variable = request.query_params.get('variable', '')
-            
+            dataset = request.query_params.get('dataset', '')
+
             if action == 'get-stations':
                 data = get_current_station(obs_date)
 
@@ -64,6 +66,14 @@ def api(request):
             
             elif action == 'get-chartData':
                 data = get_ts(s_var=variable, interaction=interaction, run_type=run_type_chart, freq=freq_chart, run_date=run_date_chart, geom_data=geom_data)
+
+                if data:
+                    return Response(data)
+                else:
+                    return Response({'error': 'No data found for your request.'}, status=status.HTTP_404_NOT_FOUND)
+            
+            elif action == 'get-latest-date':
+                data = get_latest_date(dataset=dataset)
 
                 if data:
                     return Response(data)

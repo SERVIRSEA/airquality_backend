@@ -1,17 +1,19 @@
 import glob
 import os
-import xml.etree.ElementTree as ET
-import json
-from collections import defaultdict
-import calendar
-from PIL import Image
-import numpy as np
 import requests
-from django.http import HttpResponse
+import re
 import shapely.geometry
 import shapely
 import netCDF4
 import time
+import json
+import calendar
+import xml.etree.ElementTree as ET
+from bs4 import BeautifulSoup
+from collections import defaultdict
+from PIL import Image
+import numpy as np
+from django.http import HttpResponse
 from shapely.geometry import shape, Polygon
 import logging
 from datetime import datetime, timedelta
@@ -793,3 +795,31 @@ def gen_style_legend(style):
                 rgb = (lval[0], lval[1], lval[2])
                 scale.append(rgb)
     return scale
+
+def get_latest_date(dataset):
+    url = f'{THREDDS_CATALOG}{dataset}/catalog.html'
+    
+    # Send a GET request to the URL
+    response = requests.get(url)
+
+    # Parse the HTML content
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    # Find all <a> tags with 'href' attribute containing 'dataset=<dataset_name>'
+    links = soup.find_all('a', href=re.compile(rf'dataset={re.escape(dataset)}'))
+
+    # Extract the date portion from the 'href' attributes
+    dates = []
+    for link in links:
+        file_name = link['href'].split('/')[-1]  # Get the last part of the URL
+        date_match = re.search(r'(\d{8})\.nc', file_name)  # Extract 8 digits followed by '.nc'
+        if date_match:
+            dates.append(date_match.group(1))
+    
+    # Sort the list of dates in descending order and return the latest date
+    if dates:
+        latest_date = max(dates)
+        return latest_date
+    else:
+        return None
+

@@ -10,10 +10,10 @@ from datetime import datetime, timedelta
 
 start_time = datetime.now()
 
-host = '1.243.200.145'
-port = 38022
-username = 'adpc'
-password = 'adpc1234'
+host = '<HOST>'
+port = '<PORT>'
+username = '<USERNAME>'
+password = '<PASSWORD>'
 
 transport = paramiko.Transport((host, port))
 transport.connect(username=username, password=password)

@@ -23,6 +23,7 @@ from copy import deepcopy as dc
 import cartopy.feature as cfeature
 import time
 import logging
+import shutil
 
 logging.getLogger("tensorflow").setLevel(logging.ERROR)
 warnings.filterwarnings('ignore')
@@ -42,7 +43,20 @@ if config["logMode"] == "INFO":
 
 
 def logInfo(message):
-    logging.info(str(datetime.now())[:19] + ' ' + message)
+    logging.info(str(datetime.now())[:19]+' '+message)
+
+def logDebug(message):
+    logging.debug(str(datetime.now())[:19]+' '+message)
+
+def logError(message):
+    logging.error(str(datetime.now())[:19]+' '+message)
+
+def remove_directory(directory):
+    logInfo('Deleting files from '+directory+' directory')
+    try:
+        shutil.rmtree(directory)
+    except:
+        logError('Error while deleting directory: ' +directory)
 
 
 
@@ -96,12 +110,14 @@ def bias_correction(fn):
     df3 = df[df.Date == date3]
 
     for fold in range(10):
+
         model1 = keras.models.load_model(model_path + "v12_dnn_bias_Correction_day1_fold" + str(fold).zfill(2) + ".h5",
                                          custom_objects={'customLoss1': customLoss1})
-
+        
         temp = normalize(df1[feature_columns], mx.T[feature_columns], mn.T[feature_columns])
         temp[temp < 0] = np.nan
 
+    
         df1["DNN_" + str(fold).zfill(2)] = model1.predict(temp,
                                                           steps=2,
                                                           # batch_size=1024,
@@ -121,6 +137,7 @@ def bias_correction(fn):
         df3["DNN_" + str(fold).zfill(2)] = model3.predict(temp, steps=2,
                                                           # batch_size=1024,
                                                           verbose=0)
+        
 
     model1 = keras.models.load_model(model_path + "v12_day1_dnn_bias_Correction_ensemble.h5",
                                      custom_objects={'customLoss1': customLoss1})
@@ -138,7 +155,8 @@ def bias_correction(fn):
                                         # batch_size=1024,
                                         verbose=0)
 
-    model3 = keras.models.load_model(model_path + "/v12_day3_dnn_bias_Correction_ensemble.h5",
+   
+    model3 = keras.models.load_model(model_path + "v12_day3_dnn_bias_Correction_ensemble.h5",
                                      custom_objects={'customLoss1': customLoss1})
     temp = normalize(df3[feature_columns2], mx.T[feature_columns2], mn.T[feature_columns2])
     temp[temp < 0] = np.nan
@@ -146,6 +164,7 @@ def bias_correction(fn):
                                         # batch_size=1024,
                                         verbose=0)
     df = pd.concat((df1, df2, df3), axis=0)[out_cols]
+
     out_df = df.set_index(['lat', 'lon', 'time'])
     out_xarray = xr.Dataset.from_dataframe(out_df)
 
@@ -153,6 +172,7 @@ def bias_correction(fn):
     out_xarray.to_netcdf(out_bc_path + outfn_bc, mode='w', format='NETCDF4',
                          encoding={'lat': {"_FillValue": None, 'zlib': True, 'dtype': 'float32'},
                                    'lon': {"_FillValue": None, 'zlib': True, 'dtype': 'float32'},
+                                   'time': {"_FillValue": None, 'zlib': True, 'dtype': 'float32'},
                                    'GEOSPM25': {"_FillValue": -999, 'zlib': True, 'dtype': 'float32'},
                                    # 'BC_MLPM25':{"_FillValue":-999,'zlib': True,'dtype':'float32'},
                                    'BC_DNN_PM25': {"_FillValue": -999, 'zlib': True, 'dtype': 'float32'}})
@@ -191,6 +211,7 @@ def downscale(ds):
     out_ds.to_netcdf(out_ds_path + outfn_ds, mode='w', format='NETCDF4',
                      encoding={'lat': {"_FillValue": None, 'zlib': True, 'dtype': 'float32'},
                                'lon': {"_FillValue": None, 'zlib': True, 'dtype': 'float32'},
+                               'time': {"_FillValue": None, 'zlib': True, 'dtype': 'float32'},
                                'DS_GEOSPM25': {"_FillValue": -999, 'zlib': True, 'dtype': 'float32'},
                                'DS_BC_DNN_PM25': {"_FillValue": -999, 'zlib': True, 'dtype': 'float32'}})
 
@@ -386,21 +407,29 @@ out_cols = ['lat', 'lon', 'time', 'lonArray', 'latArray', 'timeArray', 'GEOSPM25
 
 PLOT = False
 
-if path.exists(date_obj.strftime('%Y%m%d') + '.nc'):
+print(config['temp_path']+ date_obj.strftime('%Y%m%d') + '.nc')
+
+if path.exists(config['temp_path']+ date_obj.strftime('%Y%m%d') + '.nc'):
     fn = str(date_obj.strftime('%Y%m%d') + '.nc')
-    outfn_bc = "BC_" + fn[-11:]
-    outfn_ds = "DS_" + fn[-11:]
+    outfn_bc = fn[-11:]
+    outfn_ds = fn[-11:]
     date = fn[-11:-3]
 
     if not os.path.exists(out_ds_path + outfn_ds):
         try:
             t1 = time.time()
-            ds = bias_correction(fn)
+            ds = bias_correction(config['temp_path']+fn)
             out_ds = downscale(ds)
             if PLOT:
                 PLOT_DS(ds, out_ds)
             print(date, " Processing time:", (time.time() - t1), " secs")
             logInfo(" Processing time: "+str(time.time() - t1)+" secs")
+
+            if(os.path.exists(out_ds_path + outfn_ds)):
+                remove_directory(config["oneHourDataPath"])
+                remove_directory(config["threeHourDataPath"])
+                remove_directory(config["temp_path"])
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]

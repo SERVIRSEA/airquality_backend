@@ -1,12 +1,14 @@
 #!/bin/bash
 #Download all the forecast files by running the following python script
-. /home/miniconda/etc/profile.d/conda.sh
-conda activate geosdatadownload
-datapath=/home/aq_dir/temp/
-scriptpath=/home/tethyssco/AirQuality-downloadGEOSData/downloadGEOSData
+#. /home/miniconda/etc/profile.d/conda.sh
+
+source /home/ubuntu/anaconda3/bin/activate env_nco
+
+datapath=/home/ubuntu/GEOS5/downscale_process/tempfiles/
+scriptpath=/home/ubuntu/GEOS5/downscale_process/
 
 cd $scriptpath
-logfile=/home/GEOSDataDownload.log
+logfile=/home/ubuntu/GEOS5/downscale_process/GEOSDataDownload.log
 timestamp=$(date +%Y%m%d%H%M%S)
 today=$(date +"%Y%m%d")
 echo "-----------------------------------------">> $logfile
@@ -15,19 +17,26 @@ echo "-----------------------------------------">> $logfile
 
 if [ $# -eq 0 ]
 then
-#      echo "Date is not passed as an argument..proceeding to download today's data" >> $logfile
+      echo "Date is not passed as an argument..proceeding to download today's data" >> $logfile
       python downloadGEOSData.py
 else
       python downloadGEOSData.py "$1"
       today=$(date -d "$1" +"%Y%m%d")
-#      echo "Date is passed as an argument..proceeding to download $today data" >> $logfile
+      echo "Date is passed as an argument..proceeding to download $today data" >> $logfile
 fi
 #echo "Working on $today" >> $logfile
 #paths to today's 1hour and 3hour .nc files
-slv_path=/home/aq_dir/geos_tavg1_2d_slv_Nx/$today.nc
-aer_path=/home/aq_dir/geos_tavg3_2d_aer_Nx/$today.nc
+slv_path=/home/ubuntu/data/geos_tavg1_2d_slv_Nx/$today.nc
+aer_path=/home/ubuntu/data/geos_tavg3_2d_aer_Nx/$today.nc
 #path to temporarily store intermediate .nc files while processing
-cd $datapath
+
+
+if [ -d "$datapath" ]; then
+    cd "$datapath"
+else
+    echo "Directory does not exist: $datapath"
+fi
+
 if [ -f final_combined.nc ]
 then 
    rm final_combined.nc
@@ -40,6 +49,7 @@ if [ -f aer_subset_file.nc ]
 then 
    rm aer_subset_file.nc
 fi
+
 #echo $slv_path
 #if slv .nc file exists, get the variables that are required
 if [ -f $slv_path ]

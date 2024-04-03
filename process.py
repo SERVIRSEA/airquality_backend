@@ -10,6 +10,8 @@ from datetime import datetime,timedelta
 import json
 import logging
 import sys
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 warnings.filterwarnings('ignore')
 f = open('downloadGEOSDataParams.json')
 #load config params

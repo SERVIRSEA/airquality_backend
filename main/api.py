@@ -24,11 +24,13 @@ def api(request):
             'get-time',
             'get-chartData',
             'get-24hstations',
-            'get-latest-date'
+            'get-latest-date',
+            'get-pcd-data-table'
         ]
 
         if action in request_methods:
             obs_date = request.query_params.get('obs_date', '')
+            obs_time = request.query_params.get('obs_time', '')
             freq = request.query_params.get('freq', '')
             run_date = request.query_params.get('run_date', '')
             run_type = request.query_params.get('run_type', '')
@@ -39,7 +41,7 @@ def api(request):
             run_type_chart = request.query_params.get('run_type_chart', '')
             variable = request.query_params.get('variable', '')
             dataset = request.query_params.get('dataset', '')
-
+            
             if action == 'get-stations':
                 data = get_current_station(obs_date)
 
@@ -80,3 +82,10 @@ def api(request):
                 else:
                     return Response({'error': 'No data found for your request.'}, status=status.HTTP_404_NOT_FOUND)
             
+            elif action == 'get-pcd-data-table':
+                data = get_pcd_table_data(obs_date, obs_time)
+                
+                if data:
+                    return Response(data)
+                else:
+                    return Response({'error': 'No data found for your request.'}, status=status.HTTP_404_NOT_FOUND)

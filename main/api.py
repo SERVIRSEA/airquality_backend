@@ -58,14 +58,6 @@ def api(request):
                 else:
                     return Response({'error': 'No data found for your request.'}, status=status.HTTP_404_NOT_FOUND)
             
-            elif action == 'get-24hstations':
-                data = get_24h_station()
-
-                if data:
-                    return Response(data)
-                else:
-                    return Response({'error': 'No data found for your request.'}, status=status.HTTP_404_NOT_FOUND)
-            
             elif action == 'get-chartData':
                 data = get_ts(s_var=variable, interaction=interaction, run_type=run_type_chart, freq=freq_chart, run_date=run_date_chart, geom_data=geom_data)
 

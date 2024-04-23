@@ -15,6 +15,8 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
 CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',')
 CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE') == 'True'
 
+CORS_ORIGIN_WHITELIST = os.environ.get('CORS_ORIGIN_WHITELIST', '').split(',')
+CORS_ORIGIN_ALLOW_ALL = False
 
 INSTALLED_APPS = [
     "django.contrib.admin",

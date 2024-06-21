@@ -53,3 +53,23 @@ class APIKey(models.Model):
     def hash_api_key(self, input_str):
         # Hash the input string using a strong cryptographic hash function (e.g., SHA-256)
         return hashlib.sha256(input_str.encode()).hexdigest()
+
+class City(models.Model):
+    city = models.CharField(max_length=100)
+    country = models.CharField(max_length=50)
+    worldcity = models.BooleanField(default=False) 
+    megacity = models.BooleanField(default=False)
+    lat = models.DecimalField(max_digits=9, decimal_places=6)  
+    lon = models.DecimalField(max_digits=9, decimal_places=6)
+    meganame = models.CharField(max_length=100)
+    idc = models.IntegerField()
+    def __str__(self):
+        return self.city
+ 
+class CityPM25(models.Model):
+    idc = models.IntegerField(default=False)  
+    pm25 = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)  # Store PM2.5 values.
+    init_date = models.DateField(default=False) 
+    forecast_time = models.CharField(default=False) 
+    def __str__(self):
+        return f"{self.idc.city} PM2.5 Data"  

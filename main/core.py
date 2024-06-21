@@ -885,6 +885,71 @@ def get_pcd_table_data(obs_date, obs_time):
 
     return result
 
+
+
+def get_pcd_table_data(obs_date, obs_time):
+    try:
+        with connections['pcd_database'].cursor() as cursor:
+            # Fetch all table names starting with 'th'
+            cursor.execute("""
+                SELECT table_name
+                FROM information_schema.tables
+                WHERE table_schema = 'public' AND table_name LIKE 'th%'
+            """)
+            tables = cursor.fetchall()
+
+            data_column = 'pm25'  # The column from which you want to fetch the data
+            date_column = 'date'  # The column that contains the date
+            time_column = 'time'  # The column that contains the time
+
+            results = []
+    
+            for table in tables:
+                table_name = table[0]
+                # Dynamic SQL to fetch the data from each table for specific date and time
+                query = f"""
+                    SELECT s.sta_id, s.lon, s.lat, station_data.pm25
+                    FROM stations AS s
+                    JOIN 
+                        (SELECT '{table_name}' AS station_id, t.{data_column}, t.{date_column}, t.{time_column}
+                        FROM {table_name} AS t
+                        WHERE t.{date_column} = '{obs_date}' AND t.{time_column} = '{obs_time}') AS station_data
+                    ON s.sta_id = station_data.station_id;
+                """
+
+                cursor.execute(query)
+                rows = cursor.fetchall()
+
+                # Append each row's data to the results list
+                for row in rows:
+                    results.append(row)
+
+            if not results:
+                result = {
+                    'status': 'Error',
+                    'message': 'No data found for the specified observation date',
+                    'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'data': []
+                }
+            else:
+                result = {
+                    'status': 'Success',
+                    'message': 'Data retrieval successful',
+                    'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'data': results
+                }
+                
+
+    except Exception as e:
+        result = {
+            'status': 'Error',
+            'message': f'Error: {str(e)}',
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'data': []
+        }
+
+    return result
+
 def get_city_pm25(forecast_date):
     try:
         with connections['default'].cursor() as cursor:

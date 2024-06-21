@@ -29,7 +29,7 @@ THREDDS_wms: Indicates the basic form of WMS requests to the server
 #               {'dbname': settings.POSTGRES_DB}]
 # connection = [{'host': '216.218.240.226'},
 #               {'user': 'postgres'},
-#               {'password': 'gvfuru:u',},
+#               {'password': '',},
 #               {'dbname': 'nrtdatapcd'}]
 
 

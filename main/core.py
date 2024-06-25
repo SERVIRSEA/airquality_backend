@@ -950,35 +950,18 @@ def get_pcd_table_data(obs_date, obs_time):
 
     return result
 
-def get_city_pm25(forecast_date):
+def get_city_pm25(forecast_date, init_date):
     try:
         with connections['default'].cursor() as cursor:
-            # query = f"""
-            #     SELECT pm25t.*, c.country, c.city, c.lat, c.lon
-            #     FROM main_citypm25 AS pm25t
-            #     JOIN (
-            #         SELECT idc, MAX(forecast_time) AS max_forecast_time
-            #         FROM main_citypm25
-            #         GROUP BY idc
-            #     ) AS latest
-            #     ON pm25t.idc = latest.idc AND pm25t.forecast_time = latest.max_forecast_time
-            #     JOIN main_city as c
-            #     ON pm25t.idc = c.idc
-            #     ORDER BY pm25t.pm25 desc
-            #     WHERE pm25t.forecast_date = '""" + forecast_date + """'
-            #     LIMIT 100;
-            # """
 
-            query = f"""
+            query = """
                 SELECT pm25t.*, c.country, c.city, c.lat, c.lon
                 FROM main_citypm25 AS pm25t
                 JOIN main_city as c
                 ON pm25t.idc = c.idc
-                WHERE pm25t.forecast_time = '""" + forecast_date + """'
-                ORDER BY pm25t.pm25 desc
-                LIMIT 100;
+                WHERE pm25t.forecast_time = '"""+ forecast_date +"""' AND pm25t.init_date = '""" + init_date + """'
+                ORDER BY pm25t.pm25 desc;
             """
-
             cursor.execute(query)
             rows = cursor.fetchall()
             results = []
@@ -1012,19 +995,18 @@ def get_city_pm25(forecast_date):
     return result
 
 
-def get_city_pm25_timeseries(idc):
+def get_city_pm25_timeseries(idc, init_date):
     try:
         with connections['default'].cursor() as cursor:
-            query = f"""
-                SELECT pm25t.*, c.country, c.city, c.lat, c.lon
-                FROM main_citypm25 AS pm25t
-                JOIN main_city as c
-                ON pm25t.idc = c.idc
-                WHERE c.idc = """ + idc + """
-                ORDER BY pm25t.forecast_time;
+            query = """
+            SELECT * FROM (SELECT pm25t.*, c.country, c.city, c.lat, c.lon
+            FROM main_citypm25 AS pm25t
+            JOIN main_city AS c ON pm25t.idc = c.idc
+            WHERE c.idc = %s AND init_date = %s
+            ORDER BY pm25t.forecast_time desc
+            LIMIT 200) ORDER BY forecast_time; 
             """
-            
-            cursor.execute(query)
+            cursor.execute(query, (idc, init_date))
             rows = cursor.fetchall()
             results = []
 

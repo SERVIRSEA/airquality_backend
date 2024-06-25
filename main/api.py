@@ -45,7 +45,8 @@ def api(request):
             dataset = request.query_params.get('dataset', '')
             forecast_date = request.query_params.get('forecast_date', '')
             idc = request.query_params.get('idc', '')
-            
+            init_date = request.query_params.get('init_date', '')
+
             if action == 'get-stations':
                 data = get_current_station(obs_date)
 
@@ -95,7 +96,7 @@ def api(request):
                     return Response({'error': 'No data found for your request.'}, status=status.HTTP_404_NOT_FOUND)
             
             elif action == 'get-city-pm25':
-                data = get_city_pm25(forecast_date)
+                data = get_city_pm25(forecast_date, init_date)
                 
                 if data:
                     return Response(data)
@@ -103,7 +104,7 @@ def api(request):
                     return Response({'error': 'No data found for your request.'}, status=status.HTTP_404_NOT_FOUND)
                 
             elif action == 'get-city-pm25-timeseries':
-                data = get_city_pm25_timeseries(idc)
+                data = get_city_pm25_timeseries(idc, init_date)
                 if data:
                     return Response(data)
                 else:

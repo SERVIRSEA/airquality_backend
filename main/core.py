@@ -821,7 +821,6 @@ def get_latest_date(dataset):
     else:
         return None
 
-
 def get_pcd_table_data(obs_date, obs_time):
     try:
         with connections['pcd_database'].cursor() as cursor:
@@ -938,8 +937,6 @@ def get_pcd_table_data(obs_date, obs_time):
                     'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                     'data': results
                 }
-                
-
     except Exception as e:
         result = {
             'status': 'Error',
@@ -960,7 +957,7 @@ def get_city_pm25(forecast_date, init_date):
                 JOIN main_city as c
                 ON pm25t.idc = c.idc
                 WHERE pm25t.forecast_time = '"""+ forecast_date +"""' AND pm25t.init_date = '""" + init_date + """'
-                ORDER BY pm25t.pm25 desc;
+                ORDER BY pm25t.pm25 desc LIMIT 100;
             """
             cursor.execute(query)
             rows = cursor.fetchall()

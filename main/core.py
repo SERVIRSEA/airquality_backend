@@ -798,28 +798,41 @@ def gen_style_legend(style):
 
 def get_latest_date(dataset):
     url = f'{THREDDS_CATALOG}ServirData/{dataset}/catalog.html'
-
     # Send a GET request to the URL
     response = requests.get(url)
     # Parse the HTML content
     soup = BeautifulSoup(response.content, 'html.parser')
-    # Find all <a> tags with 'href' attribute containing 'dataset=<dataset_name>'
-    links = soup.find_all('a', href=re.compile(rf'dataset={re.escape(dataset)}'))
 
-    # Extract the date portion from the 'href' attributes
-    dates = []
-    for link in links:
-        file_name = link['href'].split('/')[-1]  # Get the last part of the URL
-        date_match = re.search(r'(\d{8})\.nc', file_name)  # Extract 8 digits followed by '.nc'
-        if date_match:
-            dates.append(date_match.group(1))
-    
-    # Sort the list of dates in descending order and return the latest date
-    if dates:
-        latest_date = max(dates)
-        return latest_date
+    if(dataset == 'gems'):
+        links = soup.find_all('a')
+        # Extract filenames from the links
+        filenames = [link.get('href') for link in links if link.get('href')]
+
+        # Filter filenames that match the date and time pattern
+        date_pattern = re.compile(r'GEMS_NO2_\d{8}_\d{4}_\w+')
+
+        dated_filenames = [filename for filename in filenames if date_pattern.search(filename)]
+        if not dated_filenames:
+            return None
+        latest_filename = sorted(dated_filenames, key=lambda x: date_pattern.search(x).group(), reverse=True)[0]
+        return latest_filename.split("/")[-1]
     else:
-        return None
+        # Find all <a> tags with 'href' attribute containing 'dataset=<dataset_name>'
+        links = soup.find_all('a', href=re.compile(rf'dataset={re.escape(dataset)}'))
+        # Extract the date portion from the 'href' attributes
+        dates = []
+        for link in links:
+            file_name = link['href'].split('/')[-1]  # Get the last part of the URL
+            date_match = re.search(r'(\d{8})\.nc', file_name)  # Extract 8 digits followed by '.nc'
+            if date_match:
+                dates.append(date_match.group(1))
+        
+        # Sort the list of dates in descending order and return the latest date
+        if dates:
+            latest_date = max(dates)
+            return latest_date
+        else:
+            return None
 
 def get_pcd_table_data(obs_date, obs_time):
     try:
@@ -883,8 +896,6 @@ def get_pcd_table_data(obs_date, obs_time):
         }
 
     return result
-
-
 
 def get_pcd_table_data(obs_date, obs_time):
     try:

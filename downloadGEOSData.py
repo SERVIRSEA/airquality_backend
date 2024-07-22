@@ -48,7 +48,7 @@ yDay=yesterday.strftime("%Y%m%d")
 datestr=currentYear+currentMonth+currentDay
 
 #bounds to subset the region
-lat_bnds, lon_bnds = [5, 40], [59, 110]
+lat_bnds, lon_bnds =[-15,38], [59,142]
 
 def logInfo(message):
     logging.info(str(datetime.now())[:19]+' '+message)

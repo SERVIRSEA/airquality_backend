@@ -963,12 +963,12 @@ def get_city_pm25(forecast_date, init_date):
         with connections['default'].cursor() as cursor:
 
             query = """
-                SELECT pm25t.*, c.country, c.city, c.lat, c.lon
+                SELECT pm25t.*, c.country, c.city, c.lat, c.lon, c.megacity
                 FROM main_citypm25 AS pm25t
                 JOIN main_city as c
                 ON pm25t.idc = c.idc
                 WHERE pm25t.forecast_time = '"""+ forecast_date +"""' AND pm25t.init_date = '""" + init_date + """'
-                ORDER BY pm25t.pm25 desc LIMIT 100;
+                ORDER BY pm25t.pm25 desc;
             """
             cursor.execute(query)
             rows = cursor.fetchall()

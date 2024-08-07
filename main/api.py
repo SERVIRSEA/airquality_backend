@@ -27,7 +27,8 @@ def api(request):
             'get-latest-date',
             'get-pcd-data-table',
             'get-city-pm25',
-            'get-city-pm25-timeseries'
+            'get-city-pm25-timeseries',
+            'get-location'
         ]
 
         if action in request_methods:
@@ -109,5 +110,13 @@ def api(request):
                     return Response(data)
                 else:
                     return Response({'error': 'No data found for your request.'}, status=status.HTTP_404_NOT_FOUND)
+            
+            elif action == 'get-location':
+                data = get_location()
+                if data:
+                    return Response(data)
+                else:
+                    return Response({'error': 'No data found for your request.'}, status=status.HTTP_404_NOT_FOUND)
                 
+
 

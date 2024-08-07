@@ -189,7 +189,7 @@ def get_pt_values(s_var, geom_data, freq, run_type, run_date):
     ts_plot_bcpm25 = []
     ts_plot_geospm25 = []
     s_var1 = 'PM25'
-    s_var2 = 'BC_MLPM25'
+    s_var2 = 'DS_BC_DNN_PM25'
     s_var3 = 'GEOSPM25'
     
     json_obj = {}
@@ -201,7 +201,7 @@ def get_pt_values(s_var, geom_data, freq, run_type, run_date):
     st_point=(stn_lat,stn_lon)
 
     try:
-        if run_type == "geos" or run_type == "geos5" or run_type == "vfei":
+        if run_type == "geos" or run_type == "geos5km" or run_type == "vfei":
             """access netcdf file via Thredds server OPANDAP"""
             infile = THREDDS_OPANDAP+run_type+"/"+ run_date
         else:
@@ -314,7 +314,7 @@ def get_pt_values(s_var, geom_data, freq, run_type, run_date):
                     time_stamp = calendar.timegm(dt.timetuple()) * 1000
                     ts_plot_geospm25.append([time_stamp, round(float(val))])
         
-        elif run_type == "geos5":
+        elif run_type == "geos5km":
             field = nc_fid.variables[s_var][:]
             lats = nc_fid.variables['lat'][:]
             lons = nc_fid.variables['lon'][:]  # Defining the longitude array
@@ -1015,6 +1015,47 @@ def get_city_pm25_timeseries(idc, init_date):
             LIMIT 200) ORDER BY forecast_time; 
             """
             cursor.execute(query, (idc, init_date))
+            rows = cursor.fetchall()
+            results = []
+
+            # Append each row's data to the results list
+            for row in rows:
+                results.append(row)
+
+            if not results:
+                result = {
+                    'status': 'Error',
+                    'message': 'No data found for the specified observation date',
+                    'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'data': []
+                }
+            else:
+                result = {
+                    'status': 'Success',
+                    'data': results
+                }
+                
+
+    except Exception as e:
+        result = {
+            'status': 'Error',
+            'message': f'Error: {str(e)}',
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'data': []
+        }
+
+    return result
+
+def get_location():
+    try:
+        with connections['default'].cursor() as cursor:
+
+            query = """
+                SELECT c.country, c.city, c.lat, c.lon, c.megacity
+                FROM main_city as c
+                ORDER BY c.city;
+            """
+            cursor.execute(query)
             rows = cursor.fetchall()
             results = []
 

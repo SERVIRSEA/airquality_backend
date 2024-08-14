@@ -93,7 +93,7 @@ class district_table(models.Model):
     adm1_gid = models.CharField(max_length=10)
     adm1_id = models.IntegerField()
     adm1_name = models.CharField(max_length=100)
-    adm2_gid = models.CharField(max_length=10)
+    adm2_gid = models.CharField(max_length=15)
     adm2_id = models.IntegerField()
     adm2_name = models.CharField(max_length=100)
     def __str__(self):

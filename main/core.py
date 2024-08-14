@@ -1304,9 +1304,7 @@ def get_location():
             'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'data': []
         }
-
     return result
-
 def get_country_list():
     try:
         with connections['default'].cursor() as cursor:

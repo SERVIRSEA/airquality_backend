@@ -65,11 +65,96 @@ class City(models.Model):
     idc = models.IntegerField()
     def __str__(self):
         return self.city
+
+class country_table(models.Model):
+    adm0_gid = models.CharField(max_length=10)
+    adm0_id = models.IntegerField()
+    adm0_name = models.CharField(max_length=100)
+    lat = models.DecimalField(max_digits=9, decimal_places=4, default=0)  
+    lon = models.DecimalField(max_digits=9, decimal_places=4, default=0)
+    def __str__(self):
+        return f"{self.adm0_id} - {self.adm0_name}"
+    
+class province_table(models.Model):
+    adm0_gid = models.CharField(max_length=10)
+    adm0_name = models.CharField(max_length=100)
+    adm1_gid = models.CharField(max_length=10)
+    adm1_id = models.IntegerField()
+    adm1_name = models.CharField(max_length=100)
+    lat = models.DecimalField(max_digits=9, decimal_places=4, default=0)  
+    lon = models.DecimalField(max_digits=9, decimal_places=4, default=0)
+    def __str__(self):
+        return f"{self.adm1_id} - {self.adm1_name}"
  
+class district_table(models.Model):
+    adm0_gid = models.CharField(max_length=10)
+    adm0_id = models.IntegerField()
+    adm0_name = models.CharField(max_length=100)
+    adm1_gid = models.CharField(max_length=10)
+    adm1_id = models.IntegerField()
+    adm1_name = models.CharField(max_length=100)
+    adm2_gid = models.CharField(max_length=10)
+    adm2_id = models.IntegerField()
+    adm2_name = models.CharField(max_length=100)
+    def __str__(self):
+        return f"{self.adm2_id} - {self.adm2_name}"
+    
 class CityPM25(models.Model):
     idc = models.IntegerField(default=False)  
     pm25 = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)  # Store PM2.5 values.
     init_date = models.DateField(default=False) 
     forecast_time = models.CharField(default=False) 
     def __str__(self):
+        return f"{self.idc.city} PM2.5 Data" 
+
+class CityNO2(models.Model):
+    idc = models.IntegerField(default=False)  
+    no2 = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)  # Store PM2.5 values.
+    init_date = models.DateField(default=False) 
+    time = models.CharField(default=False) 
+    def __str__(self):
         return f"{self.idc.city} PM2.5 Data"  
+    
+class Firm24h(models.Model):
+    adm_lvl = models.CharField(max_length=10)  # Added max_length
+    area_id = models.IntegerField(default=False)  # Added max_length
+    area_name = models.CharField(max_length=100)  # Added max_length
+    firmcount = models.IntegerField(default=False)  
+    init_date = models.DateField(default=False) 
+    def __str__(self):
+        return f"{self.adm_lvl} - {self.area_name} - {self.init_date}"
+    
+class Firm48h(models.Model):
+    adm_lvl = models.CharField(max_length=10)  # Added max_length
+    area_id = models.IntegerField(default=False)  # Added max_length
+    area_name = models.CharField(max_length=100)  # Added max_length
+    firmcount = models.IntegerField(default=False)  
+    init_date = models.DateField(default=False) 
+    def __str__(self):
+        return f"{self.adm_lvl} - {self.area_name} - {self.init_date}"
+    
+class Firmsingle(models.Model):
+    adm_lvl = models.CharField(max_length=10)  # Added max_length
+    area_id = models.IntegerField(default=False)  # Added max_length
+    area_name = models.CharField(max_length=100)  # Added max_length
+    firmcount = models.IntegerField(default=False)  
+    init_date = models.DateField(default=False) 
+    def __str__(self):
+        return f"{self.adm_lvl} - {self.area_name} - {self.init_date}"
+    
+class PM25(models.Model):
+    adm_lvl = models.CharField(max_length=10)  # Added max_length
+    area_id = models.IntegerField(default=False)  # Added max_length
+    area_name = models.CharField(max_length=100)  # Added max_length
+    min = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    max = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    average = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    init_date = models.DateField()  # Removed default value
+    forecast_time = models.DateTimeField()  # Changed to DateTimeField for accurate datetime storage
+
+    class Meta:
+        unique_together = ('adm_lvl', 'area_id', 'init_date', 'forecast_time')  # Added unique constraint
+
+    def __str__(self):
+        return f"{self.adm_lvl} - {self.area_name} - {self.init_date} - {self.forecast_time}"
+  

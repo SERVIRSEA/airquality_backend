@@ -28,7 +28,11 @@ def api(request):
             'get-pcd-data-table',
             'get-city-pm25',
             'get-city-pm25-timeseries',
-            'get-location'
+            'get-location',
+            'get-data-pm25',
+            'get-data-pm25-dash',
+            'get-country-list',
+            'get-province-list'
         ]
 
         if action in request_methods:
@@ -45,8 +49,9 @@ def api(request):
             variable = request.query_params.get('variable', '')
             dataset = request.query_params.get('dataset', '')
             forecast_date = request.query_params.get('forecast_date', '')
-            idc = request.query_params.get('idc', '')
+            area_id = request.query_params.get('area_id', '')
             init_date = request.query_params.get('init_date', '')
+            adm_lvl = request.query_params.get('adm_lvl', '')
 
             if action == 'get-stations':
                 data = get_current_station(obs_date)
@@ -105,7 +110,7 @@ def api(request):
                     return Response({'error': 'No data found for your request.'}, status=status.HTTP_404_NOT_FOUND)
                 
             elif action == 'get-city-pm25-timeseries':
-                data = get_city_pm25_timeseries(idc, init_date)
+                data = get_city_pm25_timeseries(area_id, init_date, adm_lvl)
                 if data:
                     return Response(data)
                 else:
@@ -113,6 +118,34 @@ def api(request):
             
             elif action == 'get-location':
                 data = get_location()
+                if data:
+                    return Response(data)
+                else:
+                    return Response({'error': 'No data found for your request.'}, status=status.HTTP_404_NOT_FOUND)
+            
+            elif action == 'get-data-pm25':
+                data = get_adm_pm25(forecast_date, init_date, adm_lvl)
+                if data:
+                    return Response(data)
+                else:
+                    return Response({'error': 'No data found for your request.'}, status=status.HTTP_404_NOT_FOUND)
+            
+            elif action == 'get-data-pm25-dash':
+                data = get_adm_pm25_dash(forecast_date, init_date, adm_lvl, area_id)
+                if data:
+                    return Response(data)
+                else:
+                    return Response({'error': 'No data found for your request.'}, status=status.HTTP_404_NOT_FOUND)
+            
+            elif action == 'get-country-list':
+                data = get_country_list()
+                if data:
+                    return Response(data)
+                else:
+                    return Response({'error': 'No data found for your request.'}, status=status.HTTP_404_NOT_FOUND)
+            
+            elif action == 'get-province-list':
+                data = get_province_list()
                 if data:
                     return Response(data)
                 else:

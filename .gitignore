@@ -2,4 +2,5 @@
 airquality/__pycache__/*
 airquality/__init__.py
 main/__pycache__/*
+main/migrations/*
 main/migrations/__pycache__/*

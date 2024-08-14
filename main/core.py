@@ -1337,7 +1337,6 @@ def get_country_list():
                     'data': results
                 }
                 
-
     except Exception as e:
         result = {
             'status': 'Error',

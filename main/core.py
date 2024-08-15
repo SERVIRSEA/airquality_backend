@@ -848,6 +848,22 @@ def get_latest_date(dataset):
 
 
 def get_pcd_table_data(obs_date, obs_time):
+    # obs_date and obs_time is UTC time
+    # Original date and time strings
+    date_str = obs_date
+    time_str = obs_time
+
+    # Combine date and time into a single datetime object
+    datetime_str = date_str + " " + time_str
+    datetime_obj = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M")
+
+    # add 7 hours because Thai PCD data is using +7UTC
+    new_datetime_obj = datetime_obj + timedelta(hours=7)
+
+    # Convert back to date and time strings
+    new_date_str = new_datetime_obj.strftime("%Y-%m-%d")
+    new_time_str = new_datetime_obj.strftime("%H:%M")
+
     try:
         with connections['pcd_database'].cursor() as cursor:
             # Fetch all table names starting with 'th'
@@ -873,7 +889,7 @@ def get_pcd_table_data(obs_date, obs_time):
                     JOIN 
                         (SELECT '{table_name}' AS station_id, t.{data_column}, t.{date_column}, t.{time_column}
                         FROM {table_name} AS t
-                        WHERE t.{date_column} = '{obs_date}' AND t.{time_column} = '{obs_time}') AS station_data
+                        WHERE t.{date_column} = '{new_date_str}' AND t.{time_column} = '{new_time_str}') AS station_data
                     ON s.sta_id = station_data.station_id;
                 """
 

@@ -1144,7 +1144,6 @@ def get_pm25_province_dash(forecast_date, init_date, adm_lvl, area_id):
         }
     return result
 
-
 def get_adm_pm25(forecast_date, init_date, adm_lvl):
     if adm_lvl == 'country':
         table = 'main_country_table'

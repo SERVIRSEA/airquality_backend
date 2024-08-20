@@ -4,6 +4,7 @@ from django.utils.crypto import get_random_string
 import string
 import random
 import hashlib
+from django.utils.timezone import now
 
 class APIKey(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -83,6 +84,7 @@ class province_table(models.Model):
     adm1_name = models.CharField(max_length=100)
     lat = models.DecimalField(max_digits=9, decimal_places=4, default=0)  
     lon = models.DecimalField(max_digits=9, decimal_places=4, default=0)
+    majorcity = models.BooleanField(default=False)
     def __str__(self):
         return f"{self.adm1_id} - {self.adm1_name}"
  
@@ -158,3 +160,13 @@ class PM25(models.Model):
     def __str__(self):
         return f"{self.adm_lvl} - {self.area_name} - {self.init_date} - {self.forecast_time}"
   
+class RequestData(models.Model):
+    name = models.CharField(max_length=100)
+    organization = models.CharField(max_length=100)
+    email = models.CharField(max_length=100)
+    purpose = models.CharField(max_length=300)
+    data = models.CharField(max_length=50, default='')
+    date = models.DateTimeField(default=now, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.name} from {self.organization}"

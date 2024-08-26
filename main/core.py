@@ -797,13 +797,14 @@ def gen_style_legend(style):
     return scale
 
 def get_latest_date(dataset):
-    url = f'{THREDDS_CATALOG}ServirData/{dataset}/catalog.html'
-    # Send a GET request to the URL
-    response = requests.get(url)
-    # Parse the HTML content
-    soup = BeautifulSoup(response.content, 'html.parser')
 
     if(dataset == 'gems'):
+        url = f'{THREDDS_CATALOG}ServirData/{dataset}/catalog.html'
+        # Send a GET request to the URL
+        response = requests.get(url)
+        # Parse the HTML content
+        soup = BeautifulSoup(response.content, 'html.parser')
+
         links = soup.find_all('a')
         # Extract filenames from the links
         filenames = [link.get('href') for link in links if link.get('href')]
@@ -829,6 +830,11 @@ def get_latest_date(dataset):
 
             return res[0].strftime('%Y%m%d')
     else:
+        url = f'{THREDDS_CATALOG}ServirData/{dataset}/catalog.html'
+        # Send a GET request to the URL
+        response = requests.get(url)
+        # Parse the HTML content
+        soup = BeautifulSoup(response.content, 'html.parser')
         # Find all <a> tags with 'href' attribute containing 'dataset=<dataset_name>'
         links = soup.find_all('a', href=re.compile(rf'dataset={re.escape(dataset)}'))
         # Extract the date portion from the 'href' attributes
@@ -889,7 +895,12 @@ def get_pcd_table_data(obs_date, obs_time):
                     JOIN 
                         (SELECT '{table_name}' AS station_id, t.{data_column}, t.{date_column}, t.{time_column}
                         FROM {table_name} AS t
-                        WHERE t.{date_column} = '{new_date_str}' AND t.{time_column} = '{new_time_str}') AS station_data
+                        WHERE t.{data_column} IS NOT NULL 
+                        AND t.{data_column}::text != 'NaN' -- Exclude 'NaN' values explicitly
+                        AND t.{data_column}::text ~ '^[0-9]+(\.[0-9]+)?$' -- Ensure pm25 is numeric
+                        ORDER BY ABS(EXTRACT(EPOCH FROM (t.{date_column}::timestamp + t.{time_column}::time)) - 
+                                    EXTRACT(EPOCH FROM ('{new_date_str}'::timestamp + '{new_time_str}'::time)))
+                        LIMIT 1) AS station_data
                     ON s.sta_id = station_data.station_id;
                 """
 

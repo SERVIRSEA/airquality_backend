@@ -60,7 +60,7 @@ fi
 #echo $aer_path
 if [ -f $aer_path ]
 then
-    ncks -O -v BCSMASS,DUSMASS25,OCSMASS,SO2SMASS,SO4SMASS,SSSMASS25,TOTEXTTAU $aer_path aer_subset_file.nc
+    ncks -O -v BCSMASS,DUSMASS25,OCSMASS,SO2SMASS,SO4SMASS,SSSMASS25,TOTEXTTAU,NISMASS25 $aer_path aer_subset_file.nc
 #    echo "combine slv and aer .nc files" >> $logfile
     ncks -A aer_subset_file.nc slv_subset_file.nc
 #    echo "calculate wind variable" >> $logfile

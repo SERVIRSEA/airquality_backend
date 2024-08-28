@@ -1,0 +1,154 @@
+-----------------------------------------
+Starting script downscale.sh
+-----------------------------------------
+Date was not in YYYY-MM-DD format
+Date is passed as an argument..proceeding to download  data
+----------------------------------------------------------------------------
+Script completed running
+----------------------------------------------------------------------------
+-----------------------------------------
+Starting script downscale.sh
+-----------------------------------------
+2024-08-27 05:30:38  --------------------------START DOWNLOAD----------------------------------
+2024-08-27 05:30:38 Downloading data for 2024_08_26
+2024-08-27 05:30:38 Created directories for /home/ubuntu/data/3hour/2024//08//26---/home/ubuntu/data/1hour/2024//08//26---/home/ubuntu/data/geos_tavg1_2d_slv_Nx/---/home/ubuntu/data/geos_tavg3_2d_aer_Nx/---/home/ubuntu/data/geos25km/---/home/ubuntu/data/geos5km/---/home/ubuntu/geos5_sea/tempfiles/
+2024-08-27 05:30:38 Getting the links of files available...
+2024-08-27 05:31:13 Downloading files from https://portal.nccs.nasa.gov/datashare/gmao/geos-fp/forecast/Y2024/M08/D26/H00/
+2024-08-27 05:31:13 Starting to download tavg3_2d_aer_Nx and tavg1_2d_slv_Nx data
+2024-08-27 05:31:13 Combining files from /home/ubuntu/data/3hour/2024//08//26 directory
+2024-08-27 05:31:23 Combining files from /home/ubuntu/data/1hour/2024//08//26 directory
+2024-08-27 05:31:30 ---------------------------END DOWNLOAD---------------------------------
+Date is passed as an argument..proceeding to download 20240826 data
+--------------------------START DOWNSCALING----------------------------------
+2024-08-27 05:32:07  Processing time: 18.922078371047974 secs
+2024-08-27 05:32:07 Deleting files from /home/ubuntu/data/1hour/ directory
+2024-08-27 05:32:07 Deleting files from /home/ubuntu/data/3hour/ directory
+2024-08-27 05:32:07 Deleting files from /home/ubuntu/geos5_sea/tempfiles/ directory
+Output files should be available in BC and DS directories
+--------------------------END DOWNSCALING------------------------------------
+----------------------------------------------------------------------------
+Script completed running
+----------------------------------------------------------------------------
+-----------------------------------------
+Starting script downscale.sh
+-----------------------------------------
+Date is not passed as an argument..proceeding to download today's data
+2024-08-27 06:39:07  --------------------------START DOWNLOAD----------------------------------
+2024-08-27 06:39:07 Downloading data for 2024_08_27
+2024-08-27 06:39:07 Created directories for /home/ubuntu/data/3hour/2024//08//27---/home/ubuntu/data/1hour/2024//08//27---/home/ubuntu/data/geos_tavg1_2d_slv_Nx/---/home/ubuntu/data/geos_tavg3_2d_aer_Nx/---/home/ubuntu/data/geos25km/---/home/ubuntu/data/geos5km/---/home/ubuntu/geos5_sea/tempfiles/
+2024-08-27 06:39:07 Getting the links of files available...
+2024-08-27 06:39:07 Downloading files from https://portal.nccs.nasa.gov/datashare/gmao/geos-fp/forecast/Y2024/M08/D27/H00/
+2024-08-27 06:39:07 Starting to download tavg3_2d_aer_Nx and tavg1_2d_slv_Nx data
+2024-08-27 06:39:07 Combining files from /home/ubuntu/data/3hour/2024//08//27 directory
+2024-08-27 06:39:07 Error while combining data: no files to open
+2024-08-27 06:39:07 Combining files from /home/ubuntu/data/1hour/2024//08//27 directory
+2024-08-27 06:39:07 Error while combining data: no files to open
+2024-08-27 06:39:07 ---------------------------END DOWNLOAD---------------------------------
+----------------------------------------------------------------------------
+Script completed running
+----------------------------------------------------------------------------
+-----------------------------------------
+Starting script downscale.sh
+-----------------------------------------
+2024-08-27 06:39:41  --------------------------START DOWNLOAD----------------------------------
+2024-08-27 06:39:41 Downloading data for 2024_08_26
+2024-08-27 06:39:41 Created directories for /home/ubuntu/data/3hour/2024//08//26---/home/ubuntu/data/1hour/2024//08//26---/home/ubuntu/data/geos_tavg1_2d_slv_Nx/---/home/ubuntu/data/geos_tavg3_2d_aer_Nx/---/home/ubuntu/data/geos25km/---/home/ubuntu/data/geos5km/---/home/ubuntu/geos5_sea/tempfiles/
+2024-08-27 06:39:41 Getting the links of files available...
+2024-08-27 06:40:11 Downloading files from https://portal.nccs.nasa.gov/datashare/gmao/geos-fp/forecast/Y2024/M08/D26/H00/
+2024-08-27 06:40:11 Starting to download tavg3_2d_aer_Nx and tavg1_2d_slv_Nx data
+2024-08-27 06:57:58 Combining files from /home/ubuntu/data/3hour/2024//08//26 directory
+2024-08-27 06:58:08 Combining files from /home/ubuntu/data/1hour/2024//08//26 directory
+2024-08-27 06:58:16 ---------------------------END DOWNLOAD---------------------------------
+Date is passed as an argument..proceeding to download 20240826 data
+--------------------------START DOWNSCALING----------------------------------
+2024-08-27 06:58:51  Processing time: 17.076338052749634 secs
+2024-08-27 06:58:51 Deleting files from /home/ubuntu/data/1hour/ directory
+2024-08-27 06:58:51 Deleting files from /home/ubuntu/data/3hour/ directory
+2024-08-27 06:58:51 Deleting files from /home/ubuntu/geos5_sea/tempfiles/ directory
+Output files should be available in BC and DS directories
+--------------------------END DOWNSCALING------------------------------------
+----------------------------------------------------------------------------
+Script completed running
+----------------------------------------------------------------------------
+-----------------------------------------
+Starting script downscale.sh
+-----------------------------------------
+2024-08-27 08:05:36  --------------------------START DOWNLOAD----------------------------------
+2024-08-27 08:05:36 Downloading data for 2024_08_25
+2024-08-27 08:05:36 Created directories for /home/ubuntu/data/3hour/2024//08//25---/home/ubuntu/data/1hour/2024//08//25---/home/ubuntu/data/geos_tavg1_2d_slv_Nx/---/home/ubuntu/data/geos_tavg3_2d_aer_Nx/---/home/ubuntu/data/geos25km/---/home/ubuntu/data/geos5km/---/home/ubuntu/geos5_sea/tempfiles/
+2024-08-27 08:05:36 Getting the links of files available...
+2024-08-27 08:06:11 Downloading files from https://portal.nccs.nasa.gov/datashare/gmao/geos-fp/forecast/Y2024/M08/D25/H00/
+2024-08-27 08:06:11 Starting to download tavg3_2d_aer_Nx and tavg1_2d_slv_Nx data
+-----------------------------------------
+Starting script downscale.sh
+-----------------------------------------
+2024-08-27 08:22:24  --------------------------START DOWNLOAD----------------------------------
+2024-08-27 08:22:24 Downloading data for 2024_08_26
+2024-08-27 08:22:24 Created directories for /home/ubuntu/data/3hour/2024//08//26---/home/ubuntu/data/1hour/2024//08//26---/home/ubuntu/data/geos_tavg1_2d_slv_Nx/---/home/ubuntu/data/geos_tavg3_2d_aer_Nx/---/home/ubuntu/data/geos25km/---/home/ubuntu/data/geos5km/---/home/ubuntu/geos5_sea/tempfiles/
+2024-08-27 08:22:24 Getting the links of files available...
+-----------------------------------------
+Starting script downscale.sh
+-----------------------------------------
+2024-08-27 08:22:28  --------------------------START DOWNLOAD----------------------------------
+2024-08-27 08:22:28 Downloading data for 2024_08_25
+2024-08-27 08:22:28 Created directories for /home/ubuntu/data/3hour/2024//08//25---/home/ubuntu/data/1hour/2024//08//25---/home/ubuntu/data/geos_tavg1_2d_slv_Nx/---/home/ubuntu/data/geos_tavg3_2d_aer_Nx/---/home/ubuntu/data/geos25km/---/home/ubuntu/data/geos5km/---/home/ubuntu/geos5_sea/tempfiles/
+2024-08-27 08:22:28 Getting the links of files available...
+2024-08-27 08:23:05 Downloading files from https://portal.nccs.nasa.gov/datashare/gmao/geos-fp/forecast/Y2024/M08/D25/H00/
+2024-08-27 08:23:05 Starting to download tavg3_2d_aer_Nx and tavg1_2d_slv_Nx data
+2024-08-27 08:26:56 Combining files from /home/ubuntu/data/3hour/2024//08//25 directory
+2024-08-27 08:27:06 Combining files from /home/ubuntu/data/1hour/2024//08//25 directory
+2024-08-27 08:27:13 ---------------------------END DOWNLOAD---------------------------------
+Date is passed as an argument..proceeding to download 20240825 data
+--------------------------START DOWNSCALING----------------------------------
+2024-08-27 08:27:51  Processing time: 18.96375846862793 secs
+2024-08-27 08:27:51 Deleting files from /home/ubuntu/data/1hour/ directory
+2024-08-27 08:27:51 Deleting files from /home/ubuntu/data/3hour/ directory
+2024-08-27 08:27:52 Deleting files from /home/ubuntu/geos5_sea/tempfiles/ directory
+Output files should be available in BC and DS directories
+--------------------------END DOWNSCALING------------------------------------
+----------------------------------------------------------------------------
+Script completed running
+----------------------------------------------------------------------------
+-----------------------------------------
+Starting script downscale.sh
+-----------------------------------------
+2024-08-27 08:36:53  --------------------------START DOWNLOAD----------------------------------
+2024-08-27 08:36:53 Downloading data for 2024_08_27
+2024-08-27 08:36:53 Created directories for /home/ubuntu/data/3hour/2024//08//27---/home/ubuntu/data/1hour/2024//08//27---/home/ubuntu/data/geos_tavg1_2d_slv_Nx/---/home/ubuntu/data/geos_tavg3_2d_aer_Nx/---/home/ubuntu/data/geos25km/---/home/ubuntu/data/geos5km/---/home/ubuntu/geos5_sea/tempfiles/
+2024-08-27 08:36:53 Getting the links of files available...
+2024-08-27 08:37:13 Downloading files from https://portal.nccs.nasa.gov/datashare/gmao/geos-fp/forecast/Y2024/M08/D27/H00/
+2024-08-27 08:37:13 Starting to download tavg3_2d_aer_Nx and tavg1_2d_slv_Nx data
+2024-08-27 08:53:12 Combining files from /home/ubuntu/data/3hour/2024//08//27 directory
+2024-08-27 08:53:21 Combining files from /home/ubuntu/data/1hour/2024//08//27 directory
+2024-08-27 08:53:29 ---------------------------END DOWNLOAD---------------------------------
+Date is passed as an argument..proceeding to download 20240827 data
+--------------------------START DOWNSCALING----------------------------------
+2024-08-27 08:54:05  Processing time: 16.887285470962524 secs
+2024-08-27 08:54:05 Deleting files from /home/ubuntu/data/1hour/ directory
+2024-08-27 08:54:05 Deleting files from /home/ubuntu/data/3hour/ directory
+2024-08-27 08:54:05 Deleting files from /home/ubuntu/geos5_sea/tempfiles/ directory
+Output files should be available in BC and DS directories
+--------------------------END DOWNSCALING------------------------------------
+----------------------------------------------------------------------------
+Script completed running
+----------------------------------------------------------------------------
+Convert Netcdf and import to Geoserver
+-----------------------------------------
+Starting script downscale.sh
+-----------------------------------------
+2024-08-28 00:00:02  --------------------------START DOWNLOAD----------------------------------
+2024-08-28 00:00:02 Downloading data for 2024_08_28
+2024-08-28 00:00:02 Created directories for /home/ubuntu/data/3hour/2024//08//28---/home/ubuntu/data/1hour/2024//08//28---/home/ubuntu/data/geos_tavg1_2d_slv_Nx/---/home/ubuntu/data/geos_tavg3_2d_aer_Nx/---/home/ubuntu/data/geos25km/---/home/ubuntu/data/geos5km/---/home/ubuntu/geos5_sea/tempfiles/
+2024-08-28 00:00:02 Getting the links of files available...
+2024-08-28 00:00:02 Downloading files from https://portal.nccs.nasa.gov/datashare/gmao/geos-fp/forecast/Y2024/M08/D28/H00/
+2024-08-28 00:00:02 Starting to download tavg3_2d_aer_Nx and tavg1_2d_slv_Nx data
+2024-08-28 00:00:02 Combining files from /home/ubuntu/data/3hour/2024//08//28 directory
+2024-08-28 00:00:02 Error while combining data: no files to open
+2024-08-28 00:00:02 Combining files from /home/ubuntu/data/1hour/2024//08//28 directory
+2024-08-28 00:00:02 Error while combining data: no files to open
+2024-08-28 00:00:02 ---------------------------END DOWNLOAD---------------------------------
+Date is passed as an argument..proceeding to download 20240828 data
+----------------------------------------------------------------------------
+Script completed running
+----------------------------------------------------------------------------
+Convert Netcdf and import to Geoserver

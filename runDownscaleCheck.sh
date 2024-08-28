@@ -2,7 +2,7 @@
 
 # Path to the directory with geos data files.
 data_path="/home/ubuntu/data/geos5km"
-process_path="/home/ubuntu/GEOS5/downscale_process"
+process_path="/home/ubuntu/geos5_sea/"
 script_to_execute="$process_path/downscale.sh"
 
 # Get dates for the last 7 days in YYYYMMDD format.

@@ -4,11 +4,11 @@
 
 source /home/ubuntu/anaconda3/bin/activate env_nco
 
-datapath=/home/ubuntu/GEOS5/downscale_process/tempfiles/
-scriptpath=/home/ubuntu/GEOS5/downscale_process/
+datapath=/home/ubuntu/geos5_sea/tempfiles/
+scriptpath=/home/ubuntu/geos5_sea/
 
 cd $scriptpath
-logfile=/home/ubuntu/GEOS5/downscale_process/GEOSDataDownload.log
+logfile=/home/ubuntu/geos5_sea/GEOSDataDownload.log
 timestamp=$(date +%Y%m%d%H%M%S)
 today=$(date +"%Y%m%d")
 echo "-----------------------------------------">> $logfile
@@ -99,3 +99,9 @@ fi
 echo "----------------------------------------------------------------------------" >> $logfile
 echo "Script completed running" >> $logfile
 echo "----------------------------------------------------------------------------" >> $logfile
+
+echo "Convert Netcdf and import to Geoserver" >> $logfile
+netpath=/home/ubuntu/geos5_sea/netcdf_process
+cd $netpath
+python netcdf2tif.py
+python upload_tif2geoserver.py

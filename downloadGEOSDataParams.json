@@ -1,9 +1,9 @@
 {
     "url":"https://portal.nccs.nasa.gov/datashare/gmao/geos-fp/forecast",
-    "logFile":"/home/ubuntu/GEOS5/downscale_process/GEOSDataDownload.log",
+    "logFile":"/home/ubuntu/geos5_sea/GEOSDataDownload.log",
     "logMode":"INFO",
-    "directory_path": "/home/ubuntu/GEOS5/downscale_process/",
-    "temp_path": "/home/ubuntu/GEOS5/downscale_process/tempfiles/",
+    "directory_path": "/home/ubuntu/geos5_sea/",
+    "temp_path": "/home/ubuntu/geos5_sea/tempfiles/",
     "threeHourDataPath":"/home/ubuntu/data/3hour/",
     "oneHourDataPath":"/home/ubuntu/data/1hour/",
     "combinedDataPath1hour":"/home/ubuntu/data/geos_tavg1_2d_slv_Nx/",

@@ -15,8 +15,11 @@ class RequestDataAPIView(APIView):
             return Response(serializer.errors, status=400)
 
 class VisitorCountView(APIView):
-    def get(self, request):
-        ip_address = request.META.get('REMOTE_ADDR')
+    def post(self, request):
+        ip_address = request.data.get('ip')
+        if not ip_address:
+            return Response({"error": "IP address is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
         visitor, created = Visitor.objects.get_or_create(ip_address=ip_address)
         
         if not created:

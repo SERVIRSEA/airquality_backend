@@ -613,34 +613,6 @@ def get_poylgon_values(s_var, geom_data, freq, run_type, run_date):
         return json_obj
     return json_obj_arr
 
-# database utils
-def get_station_data():
-    with connection.cursor() as cursor:
-        sql = """SELECT s.rid,s.station_id,s.name_en, s.lat, s."long" as longitude,m.pm25,max(datetime) latest_date
-                from stations s,nrt_measurements m where s.station_id = m.station_id and pm25 is not null
-                group by s.rid, s.station_id, s.name_en, m.pm25,s.lat,longitude limit 20"""
-        cursor.execute(sql)
-        data = cursor.fetchall()
-        stations=[]
-        for row in data:
-            rid = row[0]
-            name=row[2]
-            station_id = row[1]
-            lat = row[3]
-            lon = row[4]
-            pm25=row[5]
-            latest_date=row[6]
-            stations.append({
-                'rid': rid,
-                'station_id': station_id,
-                'latest_date': str(latest_date),
-                'lon': lon,
-                'lat': lat,
-                'pm25': pm25,
-                'name':name
-            })
-        connection.close()
-        return stations
 
 def get_current_station(obs_date):
     try:
@@ -710,38 +682,6 @@ def get_current_station(obs_date):
         }
 
     return result
-
-def get_pm25_data(s_var, run_type, run_date, station, lat, lon):
-    try:
-        geom_data = lon+',' + lat
-        geos_pm25_data = get_pt_values(s_var, geom_data, "station", "geos", run_date)
-        # "2019-08-01 03:00:00"
-        date_obj = datetime.strptime(run_date.split('.')[0],"%Y%m%d")
-        end_date = date_obj+timedelta(days=3)
-        sd = date_obj.strftime("%Y-%m-%d %H:%M:%S")
-        ed = end_date.strftime("%Y-%m-%d %H:%M:%S")
-        pm25_data = {}
-        ts_plot = []
-        with connection.cursor() as cursor:
-            sql = """SELECT  datetime, pm25 from stations s, nrt_measurements m where s.station_id = m.station_id and s.station_id = '"""+station+"""'  and pm25 is not null and date_part('hour', datetime) in (2,5,8,11,14,17,20,23)  and datetime between '"""+sd +"""' and '"""+ed+"""'"""
-            cursor.execute(sql)
-            data = cursor.fetchall()
-            for row in data:
-                dt = row[0]
-                pm25 = row[1]
-                time_stamp = calendar.timegm(dt.timetuple()) * 1000
-                ts_plot.append([time_stamp, round(float(str(pm25)))])
-
-        ts_plot.sort()
-        pm25_data["field_data"] = ts_plot
-        # pm25_data["ml_pm25"] = geos_pm25_data["ml_pm25"]
-        pm25_data["bc_mlpm25"] = geos_pm25_data["bc_mlpm25"]
-        # pm25_data["geos_pm25"] = geos_pm25_data["geos_pm25"]
-        pm25_data["geom"] = geos_pm25_data["geom"]
-        connection.close()
-        return pm25_data
-    except Exception as e:
-        return e
 
 
 def get_ts(s_var, interaction, run_type, freq, run_date, geom_data):
@@ -967,7 +907,6 @@ def get_city_pm25(forecast_date, init_date):
                     'status': 'Success',
                     'data': results
                 }
-            
     except Exception as e:
         result = {
             'status': 'Error',
@@ -1172,20 +1111,19 @@ def get_adm_pm25(forecast_date, init_date, adm_lvl):
     try:
         with connections['default'].cursor() as cursor:
             query = """
-                SELECT pm25t.area_name, pm25t.area_id, pm25t.min, pm25t.max, pm25t.average, pm25t.forecast_time, pm25t.init_date, c.lat, c.lon, c.adm0_name, firm24.firmcount, firm48.firmcount  """+addon+"""
-                FROM main_pm25 AS pm25t
-                JOIN """+table+""" as c
-                    ON pm25t.area_id = c."""+att+"""
-                LEFT JOIN main_firm24h AS firm24
-                    ON pm25t.area_id = firm24.area_id 
-                    AND pm25t.adm_lvl = firm24.adm_lvl 
-                    AND DATE(pm25t.forecast_time) = firm24.init_date
-                LEFT JOIN main_firm48h AS firm48
-                    ON pm25t.area_id = firm48.area_id 
-                    AND pm25t.adm_lvl = firm48.adm_lvl 
-                    AND DATE(pm25t.forecast_time) = firm48.init_date
-                WHERE pm25t.forecast_time = '"""+ forecast_date +"""' AND pm25t.init_date = '""" + init_date + """' AND pm25t.adm_lvl = '"""+adm_lvl+"""'
-                ORDER BY pm25t.average desc;
+            SELECT pm25t.area_name, pm25t.area_id, pm25t.min, pm25t.max, pm25t.average, pm25t.forecast_time, pm25t.init_date, c.lat, c.lon, c.adm0_name, firm24.firmcount, firm48.firmcount  """+addon+"""
+            FROM main_pm25 AS pm25t
+            JOIN """+table+""" as c ON pm25t.area_id = c."""+att+"""
+            LEFT JOIN main_firm24h AS firm24 ON pm25t.area_id = firm24.area_id 
+                AND pm25t.adm_lvl = firm24.adm_lvl 
+                AND DATE(pm25t.forecast_time) = firm24.init_date
+            LEFT JOIN main_firm48h AS firm48 ON pm25t.area_id = firm48.area_id 
+                AND pm25t.adm_lvl = firm48.adm_lvl 
+                AND DATE(pm25t.forecast_time) = firm48.init_date
+            WHERE pm25t.forecast_time = '""" + forecast_date + """' 
+                AND pm25t.init_date = '"""+ init_date +"""' 
+                AND pm25t.adm_lvl = '"""+adm_lvl+"""'
+            ORDER BY pm25t.average DESC;
             """
 
             cursor.execute(query)

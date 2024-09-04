@@ -159,7 +159,15 @@ class PM25(models.Model):
 
     def __str__(self):
         return f"{self.adm_lvl} - {self.area_name} - {self.init_date} - {self.forecast_time}"
-  
+
+class Visitor(models.Model):
+    ip_address = models.CharField(max_length=100, unique=True)
+    visit_count = models.IntegerField(default=1)
+    last_visit = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.ip_address
+    
 class RequestData(models.Model):
     name = models.CharField(max_length=100)
     organization = models.CharField(max_length=100)

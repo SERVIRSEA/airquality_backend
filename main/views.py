@@ -15,17 +15,23 @@ class RequestDataAPIView(APIView):
             return Response(serializer.errors, status=400)
 
 class VisitorCountView(APIView):
+    # Accept only POST requests
     def post(self, request):
         ip_address = request.data.get('ip')
+
         if not ip_address:
             return Response({"error": "IP address is required"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+        # Get or create visitor based on IP address
         visitor, created = Visitor.objects.get_or_create(ip_address=ip_address)
-        
-        if not created:
-            visitor.visit_count += 1
-            visitor.last_visit = timezone.now()
+
+        # Check if the visitor's last visit was on a different day
+        if visitor.last_visit.date() < timezone.now().date():
+            visitor.visit_count += 1  # Increment the visit count for a new day
+            visitor.last_visit = timezone.now()  # Update the last visit time
             visitor.save()
 
+        # Get the total number of visitors
         total_visitors = Visitor.objects.count()
+
         return Response({"total_visitors": total_visitors}, status=status.HTTP_200_OK)

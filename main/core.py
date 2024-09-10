@@ -411,7 +411,6 @@ def get_poylgon_values(s_var, geom_data, freq, run_type, run_date):
     ts_plot = []
     json_obj_arr =[]
 
-    # print(geom_data)
     if len(json.loads(geom_data)) != 5:
         geom_data=json.loads(geom_data)
         for g_data in geom_data:
@@ -930,7 +929,7 @@ def get_adm_pm25_dash(forecast_date, init_date, adm_lvl, area_id):
                 att =  'adm1_id'
                 
                 query = """
-                SELECT pm25t.area_name, pm25t.area_id, pm25t.min, pm25t.max, pm25t.average, pm25t.forecast_time, pm25t.init_date, c.lat, c.lon, c.adm0_name, firm24.firmcount, firm48.firmcount  """+addon+"""
+                SELECT pm25t.area_name, pm25t.area_id, pm25t.min, pm25t.max, pm25t.average, pm25t.forecast_time, pm25t.init_date, c.lat, c.lon, c.adm0_name, c.majorcity, firm24.firmcount, firm48.firmcount  """+addon+"""
                 FROM main_pm25 AS pm25t
                 JOIN """+table+""" as c
                     ON pm25t.area_id = c."""+att+"""
@@ -948,7 +947,6 @@ def get_adm_pm25_dash(forecast_date, init_date, adm_lvl, area_id):
                 ORDER BY pm25t.average desc;
             """
             elif (adm == 'province' and area_id != ''):
-                print("province de")
                 adm == 'province'
                 cond = " AND c.adm1_id = "+ area_id
                 table = 'main_province_table'
@@ -956,7 +954,7 @@ def get_adm_pm25_dash(forecast_date, init_date, adm_lvl, area_id):
                 att =  'adm1_id'
                 
                 query = """
-                SELECT pm25t.area_name, pm25t.area_id, pm25t.min, pm25t.max, pm25t.average, pm25t.forecast_time, pm25t.init_date, c.lat, c.lon, c.adm0_name, firm24.firmcount, firm48.firmcount  """+addon+"""
+                SELECT pm25t.area_name, pm25t.area_id, pm25t.min, pm25t.max, pm25t.average, pm25t.forecast_time, pm25t.init_date, c.lat, c.lon, c.adm0_name, c.majorcity, firm24.firmcount, firm48.firmcount  """+addon+"""
                 FROM main_pm25 AS pm25t
                 JOIN """+table+""" as c
                     ON pm25t.area_id = c."""+att+"""
@@ -990,7 +988,7 @@ def get_adm_pm25_dash(forecast_date, init_date, adm_lvl, area_id):
                     att =  'adm2_id'
                     
                 query = """
-                    SELECT pm25t.area_name, pm25t.area_id, pm25t.min, pm25t.max, pm25t.average, pm25t.forecast_time, pm25t.init_date, c.lat, c.lon, c.adm0_name, firm24.firmcount, firm48.firmcount  """+addon+"""
+                    SELECT pm25t.area_name, pm25t.area_id, pm25t.min, pm25t.max, pm25t.average, pm25t.forecast_time, pm25t.init_date, c.lat, c.lon, c.adm0_name, c.majorcity, firm24.firmcount, firm48.firmcount  """+addon+"""
                     FROM main_pm25 AS pm25t
                     JOIN """+table+""" as c
                         ON pm25t.area_id = c."""+att+"""
@@ -1041,13 +1039,14 @@ def get_pm25_province_dash(forecast_date, init_date, adm_lvl, area_id):
     cond = ""
     try:
         with connections['default'].cursor() as cursor:
-            cond = " AND c.adm1_id = "+ area_id
+            if(area_id != ''):
+                cond = " AND c.adm1_id = "+ area_id
             table = 'main_province_table'
             addon = ''
             att =  'adm1_id'
             
             query = """
-            SELECT pm25t.area_name, pm25t.area_id, pm25t.min, pm25t.max, pm25t.average, pm25t.forecast_time, pm25t.init_date, c.lat, c.lon, c.adm0_name, firm24.firmcount, firm48.firmcount  """+addon+"""
+            SELECT pm25t.area_name, pm25t.area_id, pm25t.min, pm25t.max, pm25t.average, pm25t.forecast_time, pm25t.init_date, c.lat, c.lon, c.adm0_name, c.majorcity, firm24.firmcount, firm48.firmcount  """+addon+"""
             FROM main_pm25 AS pm25t
             JOIN """+table+""" as c
                 ON pm25t.area_id = c."""+att+"""
@@ -1064,6 +1063,7 @@ def get_pm25_province_dash(forecast_date, init_date, adm_lvl, area_id):
             WHERE pm25t.forecast_time = '"""+ forecast_date +"""' AND pm25t.init_date = '""" + init_date + """' AND pm25t.adm_lvl = 'province' """+cond+"""
             ORDER BY pm25t.average desc;
         """
+            
             cursor.execute(query)
             rows = cursor.fetchall()
             results = []
@@ -1125,7 +1125,6 @@ def get_adm_pm25(forecast_date, init_date, adm_lvl):
                 AND pm25t.adm_lvl = '"""+adm_lvl+"""'
             ORDER BY pm25t.average DESC;
             """
-
             cursor.execute(query)
             rows = cursor.fetchall()
             results = []
@@ -1180,7 +1179,6 @@ def get_city_pm25_timeseries(area_id, init_date, adm_lvl):
             ORDER BY pm25t.forecast_time desc
             LIMIT 200) ORDER BY forecast_time; 
             """
-
             # query = """
             #     SELECT pm25t.area_name, pm25t.area_id, pm25t.min, pm25t.max, pm25t.average, pm25t.forecast_time, pm25t.init_date, c.lat, c.lon, c.adm0_name """+addon+"""
             #     FROM main_pm25 AS pm25t
@@ -1353,7 +1351,7 @@ def get_province_list():
                 SELECT c.adm0_id, p.adm0_name, p.adm1_id, p.adm1_name, p.lon, p.lat
                 FROM main_province_table AS p
                 JOIN main_country_table AS c ON p.adm0_gid = c.adm0_gid
-                ORDER BY adm0_name, adm1_name;
+                ORDER BY adm1_name;
             """
             cursor.execute(query)
             rows = cursor.fetchall()

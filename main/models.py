@@ -164,9 +164,9 @@ class NO2(models.Model):
     adm_lvl = models.CharField(max_length=10)  # Added max_length
     area_id = models.IntegerField(default=False)  # Added max_length
     area_name = models.CharField(max_length=100)  # Added max_length
-    min = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
-    max = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
-    average = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    min = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    max = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    average = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     init_date = models.DateField()  # Removed default value
     obs_time = models.DateTimeField()  # Changed to DateTimeField for accurate datetime storage
 

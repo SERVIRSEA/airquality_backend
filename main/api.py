@@ -33,7 +33,8 @@ def api(request):
             'get-data-pm25-dash',
             'get-country-list',
             'get-province-list',
-            'get-data-pm25-province-dash'
+            'get-data-pm25-province-dash',
+            'get-data-no2'
         ]
 
         if action in request_methods:
@@ -126,6 +127,13 @@ def api(request):
             
             elif action == 'get-data-pm25':
                 data = get_adm_pm25(forecast_date, init_date, adm_lvl)
+                if data:
+                    return Response(data)
+                else:
+                    return Response({'error': 'No data found for your request.'}, status=status.HTTP_404_NOT_FOUND)
+            
+            elif action == 'get-data-no2':
+                data = get_adm_no2(forecast_date, init_date, adm_lvl)
                 if data:
                     return Response(data)
                 else:

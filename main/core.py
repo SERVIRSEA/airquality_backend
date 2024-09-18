@@ -1155,6 +1155,69 @@ def get_adm_pm25(forecast_date, init_date, adm_lvl):
         }
     return result
 
+def get_adm_no2(forecast_date, init_date, adm_lvl):
+    if adm_lvl == 'country':
+        table = 'main_country_table'
+        addon = ''
+        att =  'adm0_id'
+    elif adm_lvl == 'province':
+        table = 'main_province_table'
+        addon = ', c.majorcity'
+        att =  'adm1_id'
+    elif adm_lvl == 'district':
+        table = 'main_district_table'
+        addon = ', c.adm1_name'
+        att =  'adm2_id'
+
+    try:
+        with connections['default'].cursor() as cursor:
+            
+            query = """
+            SELECT no2t.area_name, no2t.area_id, no2t.min, no2t.max, no2t.average, no2t.obs_time, no2t.init_date, c.lat, c.lon, c.adm0_name, firm24.firmcount, firm48.firmcount  """+addon+"""
+            FROM main_no2 AS no2t
+            JOIN """+table+""" as c ON no2t.area_id = c."""+att+"""
+            LEFT JOIN main_firm24h AS firm24 ON no2t.area_id = firm24.area_id 
+                AND no2t.adm_lvl = firm24.adm_lvl 
+                AND no2t.init_date = firm24.init_date
+            LEFT JOIN main_firm48h AS firm48 ON no2t.area_id = firm48.area_id 
+                AND no2t.adm_lvl = firm48.adm_lvl 
+                AND no2t.init_date = firm48.init_date
+            WHERE no2t.obs_time = '""" + forecast_date + """' 
+                AND no2t.init_date = '"""+ init_date +"""' 
+                AND no2t.adm_lvl = '"""+adm_lvl+"""'
+            ORDER BY no2t.average DESC;
+            """
+
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            results = []
+
+            # Append each row's data to the results list
+            for row in rows:
+                results.append(row)
+
+            if not results:
+                result = {
+                    'status': 'Error',
+                    'message': 'No data found for the specified observation date',
+                    'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'data': []
+                }
+            else:
+                result = {
+                    'status': 'Success',
+                    'data': results
+                }
+            
+    except Exception as e:
+        result = {
+            'status': 'Error',
+            'message': f'Error: {str(e)}',
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'data': []
+        }
+    return result
+
 def get_city_pm25_timeseries(area_id, init_date, adm_lvl):
     if adm_lvl == 'country':
         table = 'main_country_table'

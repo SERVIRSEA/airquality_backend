@@ -160,6 +160,22 @@ class PM25(models.Model):
     def __str__(self):
         return f"{self.adm_lvl} - {self.area_name} - {self.init_date} - {self.forecast_time}"
 
+class NO2(models.Model):
+    adm_lvl = models.CharField(max_length=10)  # Added max_length
+    area_id = models.IntegerField(default=False)  # Added max_length
+    area_name = models.CharField(max_length=100)  # Added max_length
+    min = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    max = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    average = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    init_date = models.DateField()  # Removed default value
+    obs_time = models.DateTimeField()  # Changed to DateTimeField for accurate datetime storage
+
+    class Meta:
+        unique_together = ('adm_lvl', 'area_id', 'init_date', 'obs_time')  # Added unique constraint
+
+    def __str__(self):
+        return f"{self.adm_lvl} - {self.area_name} - {self.init_date} - {self.obs_time}"
+    
 class Visitor(models.Model):
     ip_address = models.CharField(max_length=100, unique=True)
     visit_count = models.IntegerField(default=1)

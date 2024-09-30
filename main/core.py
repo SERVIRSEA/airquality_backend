@@ -1002,7 +1002,11 @@ def get_adm_pm25_dash(forecast_date, init_date, adm_lvl, area_id):
                     att =  'adm2_id'
                     
                 query = """
-                    SELECT pm25t.area_name, pm25t.area_id, pm25t.min, pm25t.max, pm25t.average, pm25t.forecast_time, pm25t.init_date, c.lat, c.lon, c.adm0_name, c.majorcity, firm24.firmcount, firm48.firmcount  """+addon+"""
+                    SELECT pm25t.area_name, pm25t.area_id, 
+                    COALESCE(pm25t.min, 0) as min, 
+                    COALESCE(pm25t.max, 0) as max, 
+                    COALESCE(pm25t.average, 0) as average, 
+                    pm25t.forecast_time, pm25t.init_date, c.lat, c.lon, c.adm0_name, c.majorcity, firm24.firmcount, firm48.firmcount  """+addon+"""
                     FROM main_pm25 AS pm25t
                     JOIN """+table+""" as c
                         ON pm25t.area_id = c."""+att+"""
@@ -1125,7 +1129,12 @@ def get_adm_pm25(forecast_date, init_date, adm_lvl):
     try:
         with connections['default'].cursor() as cursor:
             query = """
-            SELECT pm25t.area_name, pm25t.area_id, pm25t.min, pm25t.max, pm25t.average, pm25t.forecast_time, pm25t.init_date, c.lat, c.lon, c.adm0_name, firm24.firmcount, firm48.firmcount  """+addon+"""
+            SELECT pm25t.area_name, pm25t.area_id, 
+                    COALESCE(pm25t.min, 0) as min, 
+                    COALESCE(pm25t.max, 0) as max, 
+                    COALESCE(pm25t.average, 0) as average, 
+                    pm25t.forecast_time, pm25t.init_date, 
+                    c.lat, c.lon, c.adm0_name, firm24.firmcount, firm48.firmcount  """+addon+"""
             FROM main_pm25 AS pm25t
             JOIN """+table+""" as c ON pm25t.area_id = c."""+att+"""
             LEFT JOIN main_firm24h AS firm24 ON pm25t.area_id = firm24.area_id 

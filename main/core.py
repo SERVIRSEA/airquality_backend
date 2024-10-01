@@ -1064,7 +1064,11 @@ def get_pm25_province_dash(forecast_date, init_date, adm_lvl, area_id):
             att =  'adm1_id'
             
             query = """
-                SELECT pm25t.area_name, pm25t.area_id, pm25t.min, pm25t.max, pm25t.average, pm25t.forecast_time, pm25t.init_date, c.lat, c.lon, c.adm0_name, c.majorcity, firm24.firmcount, firm48.firmcount  """+addon+"""
+                SELECT pm25t.area_name, pm25t.area_id, 
+                 COALESCE(NULLIF(pm25t.min, 'NaN'), 0) as min, 
+                COALESCE(NULLIF(pm25t.max, 'NaN'), 0) as max, 
+                COALESCE(NULLIF(pm25t.average, 'NaN'), 0) as average, 
+                pm25t.forecast_time, pm25t.init_date, c.lat, c.lon, c.adm0_name, c.majorcity, firm24.firmcount, firm48.firmcount  """+addon+"""
                 FROM main_pm25 AS pm25t
                 JOIN """+table+""" as c
                     ON pm25t.area_id = c."""+att+"""

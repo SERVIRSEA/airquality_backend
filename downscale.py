@@ -112,7 +112,7 @@ def bias_correction(fn):
 
     for fold in range(10):
 
-        model1 = keras.models.load_model(model_path + "v1_3_dnn_bias_Correction_day1_fold" + str(fold).zfill(2) + ".h5",
+        model1 = keras.models.load_model(model_path + "v1_4_dnn_bias_Correction_day1_fold" + str(fold).zfill(2) + ".h5",
                                          custom_objects={'customLoss1': customLoss1})
         
         temp = normalize(df1[feature_columns], mx.T[feature_columns], mn.T[feature_columns])
@@ -123,7 +123,7 @@ def bias_correction(fn):
                                                           steps=2,
                                                           # batch_size=1024,
                                                           verbose=0)
-        model2 = keras.models.load_model(model_path + "v1_3_dnn_bias_Correction_day2_fold" + str(fold).zfill(2) + ".h5",
+        model2 = keras.models.load_model(model_path + "v1_4_dnn_bias_Correction_day2_fold" + str(fold).zfill(2) + ".h5",
                                          custom_objects={'customLoss1': customLoss1})
         temp = normalize(df2[feature_columns], mx.T[feature_columns], mn.T[feature_columns])
         temp[temp < 0] = np.nan
@@ -133,14 +133,14 @@ def bias_correction(fn):
 
         temp = normalize(df3[feature_columns], mx.T[feature_columns], mn.T[feature_columns])
         temp[temp < 0] = np.nan
-        model3 = keras.models.load_model(model_path + "v1_3_dnn_bias_Correction_day3_fold" + str(fold).zfill(2) + ".h5",
+        model3 = keras.models.load_model(model_path + "v1_4_dnn_bias_Correction_day3_fold" + str(fold).zfill(2) + ".h5",
                                          custom_objects={'customLoss1': customLoss1})
         df3["DNN_" + str(fold).zfill(2)] = model3.predict(temp, steps=2,
                                                           # batch_size=1024,
                                                           verbose=0)
         
 
-    model1 = keras.models.load_model(model_path + "v1_3_day1_dnn_bias_Correction_ensemble.h5",
+    model1 = keras.models.load_model(model_path + "v1_4_day1_dnn_bias_Correction_ensemble.h5",
                                      custom_objects={'customLoss1': customLoss1})
     temp = normalize(df1[feature_columns2], mx.T[feature_columns2], mn.T[feature_columns2])
     temp[temp < 0] = np.nan
@@ -148,7 +148,7 @@ def bias_correction(fn):
                                         # batch_size=1024,
                                         verbose=0)
 
-    model2 = keras.models.load_model(model_path + "v1_3_day2_dnn_bias_Correction_ensemble.h5",
+    model2 = keras.models.load_model(model_path + "v1_4_day2_dnn_bias_Correction_ensemble.h5",
                                      custom_objects={'customLoss1': customLoss1})
     temp = normalize(df2[feature_columns2], mx.T[feature_columns2], mn.T[feature_columns2])
     temp[temp < 0] = np.nan
@@ -157,7 +157,7 @@ def bias_correction(fn):
                                         verbose=0)
 
    
-    model3 = keras.models.load_model(model_path + "v1_3_day3_dnn_bias_Correction_ensemble.h5",
+    model3 = keras.models.load_model(model_path + "v1_4_day3_dnn_bias_Correction_ensemble.h5",
                                      custom_objects={'customLoss1': customLoss1})
     temp = normalize(df3[feature_columns2], mx.T[feature_columns2], mn.T[feature_columns2])
     temp[temp < 0] = np.nan
@@ -412,8 +412,8 @@ print(config['temp_path']+ date_obj.strftime('%Y%m%d') + '.nc')
 
 if path.exists(config['temp_path']+ date_obj.strftime('%Y%m%d') + '.nc'):
     fn = str(date_obj.strftime('%Y%m%d') + '.nc')
-    outfn_bc = "v1_3_BC_"+fn[-11:]
-    outfn_ds = "v1_3_DS_"+fn[-11:]
+    outfn_bc = "v1_4_BC_"+fn[-11:]
+    outfn_ds = "v1_4_DS_"+fn[-11:]
     date = fn[-11:-3]
 
     if not os.path.exists(out_ds_path + outfn_ds):

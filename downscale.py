@@ -4,7 +4,7 @@ Created on Tue Oct 10 08:54:54 2023
 
 @author: asayeed
 
-Updated by Githika Tondapu on Aug 24, 2024
+Updated by Githika Tondapu on Oct 03, 2024
 """
 from datetime import datetime
 from os import path
@@ -398,7 +398,7 @@ feature_columns = ['WIND', 'PS', 'Q500',
 cols = ['DNN_00', 'DNN_01', 'DNN_02', 'DNN_03', 'DNN_04', 'DNN_05', 'DNN_06', 'DNN_07', 'DNN_08', 'DNN_09']
 feature_columns2 = feature_columns + cols
 
-mx_mn = pd.read_csv(scalar_path + 'max_min3.csv', index_col=0).T
+mx_mn = pd.read_csv(scalar_path + 'max_min4.csv', index_col=0).T
 mx_mn.loc['mx', cols] = 1000.0
 mx_mn.loc['mn', cols] = 0.0
 mx = mx_mn.loc['mx', :]

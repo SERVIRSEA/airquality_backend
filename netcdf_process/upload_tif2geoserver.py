@@ -111,7 +111,7 @@ def main():
     today = datetime.now() + timedelta(days=3)
     print(today)
     # Create a list of dates 30 days before today, formatted as YYYYMMDD
-    date_array = [(today - timedelta(days=i)).strftime('%Y%m%d') for i in range(7)]
+    date_array = [(today - timedelta(days=i)).strftime('%Y%m%d') for i in range(10)]
 
     for d in date_array:
         filterKey = 'geos_'+ d

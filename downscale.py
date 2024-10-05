@@ -412,8 +412,8 @@ print(config['temp_path']+ date_obj.strftime('%Y%m%d') + '.nc')
 
 if path.exists(config['temp_path']+ date_obj.strftime('%Y%m%d') + '.nc'):
     fn = str(date_obj.strftime('%Y%m%d') + '.nc')
-    outfn_bc = "v1_4_BC_"+fn[-11:]
-    outfn_ds = "v1_4_DS_"+fn[-11:]
+    outfn_bc = fn[-11:]
+    outfn_ds = fn[-11:]
     date = fn[-11:-3]
 
     if not os.path.exists(out_ds_path + outfn_ds):

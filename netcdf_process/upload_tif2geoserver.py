@@ -7,9 +7,10 @@ from datetime import date, timedelta, datetime
 class UploadTiffFile():
 
     # GEOSEVER URL. 
-    REST_URL = 'URL/geoserver/rest'
-    USER = 'USERNAME'
-    PWD = '<PASSWORD>'
+    REST_URL = 'http://216.218.240.247:8000/geoserver/rest'
+    USER = 'servirsea'
+    PWD = 'servir34tjyof'
+
     HEADERS = {
         'content-type': 'application/json'
     }

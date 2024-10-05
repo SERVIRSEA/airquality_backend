@@ -9,7 +9,7 @@ class UploadTiffFile():
     # GEOSEVER URL. 
     REST_URL = 'http://216.218.240.247:8000/geoserver/rest'
     USER = 'servirsea'
-    PWD = 'servir34tjyof'
+    PWD = 'PWD'
 
     HEADERS = {
         'content-type': 'application/json'

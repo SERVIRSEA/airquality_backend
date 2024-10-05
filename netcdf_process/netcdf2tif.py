@@ -49,7 +49,7 @@ nc_dir = THREDDS_OPANDAP
 # Today's date
 today = datetime.now()
 # Create a list of dates 30 days before today, formatted as YYYYMMDD
-date_array = [(today - timedelta(days=i)).strftime('%Y%m%d') for i in range(2)]
+date_array = [(today - timedelta(days=i)).strftime('%Y%m%d') for i in range(7)]
 
 for date in date_array:
     ncfile = os.path.join(THREDDS_OPANDAP, date+'.nc')

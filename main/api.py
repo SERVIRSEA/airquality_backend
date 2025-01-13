@@ -57,7 +57,7 @@ def api(request):
             adm_lvl = request.query_params.get('adm_lvl', '')
             start_date = request.query_params.get('start_date', '')
             end_date = request.query_params.get('end_date', '')
-            area_ids = request.query_params.get('area_ids', [])
+            area_ids = request.query_params.get('area_ids', '')
 
             if action == 'get-stations':
                 data = get_current_station(obs_date)
@@ -70,14 +70,6 @@ def api(request):
             elif action == 'get-time':
                 data = get_time(freq, run_type, run_date)
                 
-                if data:
-                    return Response(data)
-                else:
-                    return Response({'error': 'No data found for your request.'}, status=status.HTTP_404_NOT_FOUND)
-            
-            elif action == 'get-24hstations':
-                data = get_24h_station()
-
                 if data:
                     return Response(data)
                 else:

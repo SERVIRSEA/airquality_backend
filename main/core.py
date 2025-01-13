@@ -1355,22 +1355,24 @@ def get_daily_pm25_time_series(start_date, end_date, area_ids):
     Args:
         start_date (str): The start date in 'YYYY-MM-DD' format.
         end_date (str): The end date in 'YYYY-MM-DD' format.
-        area_ids (str): A JSON string representation of a list of area IDs (e.g., "[39, 40, 41]").
+        area_ids (str): A comma-separated string of area IDs (e.g., "39, 40, 41").
 
     Returns:
         dict: A dictionary containing the query status, message, and data.
     """
     try:
+        # Debug: Print the raw input
+        print(f"Raw area_ids input: {area_ids}")
+        
         # Parse area_ids into a Python list
         try:
-            area_ids = json.loads(area_ids)  # Convert JSON-like string to a Python list
-            if not isinstance(area_ids, list):
-                raise ValueError("area_ids must be a list")
-            area_ids = [int(id) for id in area_ids]  # Ensure all IDs are integers
-        except json.JSONDecodeError:
+            if not area_ids or not isinstance(area_ids, str):
+                raise ValueError("area_ids is required and must be a string.")
+            area_ids = [int(id.strip()) for id in area_ids.split(',') if id.strip()]
+        except ValueError:
             return {
                 'status': 'Error',
-                'message': 'Invalid area_ids format. Expected a JSON list (e.g., [39, 40, 41]).',
+                'message': 'Invalid area_ids format. Expected a comma-separated string of integers (e.g., "39, 40, 41").',
                 'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                 'data': []
             }

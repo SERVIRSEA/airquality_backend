@@ -34,7 +34,8 @@ def api(request):
             'get-country-list',
             'get-province-list',
             'get-data-pm25-province-dash',
-            'get-data-no2'
+            'get-data-no2',
+            'get-daily-average-pm25-timeseries'
         ]
 
         if action in request_methods:
@@ -54,6 +55,9 @@ def api(request):
             area_id = request.query_params.get('area_id', '')
             init_date = request.query_params.get('init_date', '')
             adm_lvl = request.query_params.get('adm_lvl', '')
+            start_date = request.query_params.get('start_date', '')
+            end_date = request.query_params.get('end_date', '')
+            area_ids = request.query_params.get('area_ids', [])
 
             if action == 'get-stations':
                 data = get_current_station(obs_date)
@@ -163,6 +167,14 @@ def api(request):
             
             elif action == 'get-province-list':
                 data = get_province_list()
+                if data:
+                    return Response(data)
+                else:
+                    return Response({'error': 'No data found for your request.'}, status=status.HTTP_404_NOT_FOUND)
+                
+            
+            elif action == 'get-daily-average-pm25-timeseries':
+                data = get_daily_pm25_time_series(start_date, end_date, area_ids)
                 if data:
                     return Response(data)
                 else:

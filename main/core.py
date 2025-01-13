@@ -32,118 +32,6 @@ THREDDS_CATALOG = settings.THREDDS_CATALOG
 THREDDS_OPANDAP = settings.THREDDS_OPANDAP
 THREDDS_wms = settings.THREDDS_WMS_URL
 
-def generate_variables_meta():
-    """Generate Variables Metadata from the Var Info text"""
-    db_file = os.path.join(settings.BASE_DIR, 'static/data/var_info.txt')
-    variable_list = []
-    with open(db_file, mode='r') as f:
-        f.readline()  # Skip first line
-
-        lines = f.readlines()
-
-    for line in lines:
-        if line != '':
-            line = line.strip()
-            linevals = line.split('|')
-            variable_id = linevals[0]
-            category = linevals[1]
-            display_name = linevals[2]
-            units = linevals[3]
-            vmin = linevals[4]
-            vmax = linevals[5]
-
-            try:
-                variable_list.append({
-                    'id': variable_id,
-                    'category': category,
-                    'display_name': display_name,
-                    'units': units,
-                    'min': vmin,
-                    'max': vmax,
-                })
-            except Exception:
-                continue
-    return variable_list
-
-
-def gen_thredds_options():
-    """Generate THREDDS options for the dropdowns"""
-    catalog_url = THREDDS_CATALOG
-
-    catalog_wms = THREDDS_wms
-    tinf = defaultdict()
-    json_obj = {}
-
-
-    if catalog_url[-1] != "/":
-        catalog_url = catalog_url + '/'
-
-    if catalog_wms[-1] != "/":
-        catalog_wms = catalog_wms + '/'
-    catalog_xml_url = catalog_url + 'catalog.xml'
-    cat_response = requests.get(catalog_xml_url, verify=False)
-    cat_tree = ET.fromstring(cat_response.content)
-    currentDay = datetime.now().strftime('%d')
-    currentMonth = datetime.now().strftime('%m')
-    currentYear = datetime.now().strftime('%Y')
-    d=currentYear+currentMonth+currentDay
-    for elem in cat_tree.iter():
-        for k, v in elem.attrib.items():
-            if 'title' in k and ("geos" in v or "fire" in v or "aod" in v):
-                run_xml_url = catalog_url + str(v) +'/catalog.xml'
-                run_response = requests.get(run_xml_url, verify=False)
-                run_tree = ET.fromstring(run_response.content)
-                for ele in run_tree.iter():
-                    for ke, va in ele.attrib.items():
-                        if 'urlPath' in ke:
-                            if va.endswith('.nc') and d in va  and "geos" in va:
-                                tinf.setdefault(v, {}).setdefault('3daytoday', []).append(va)
-                                tinf.setdefault(v, {}).setdefault('3dayrecent', []).append(va)
-                            elif va.endswith('.nc') and d not in va and "geos" in va:
-                                tinf.setdefault(v, {}).setdefault('3dayrecent', []).append(va)
-                            elif va.endswith('.nc') and "geos" not in va:
-                                tinf.setdefault(v, {}).setdefault('monthly', []).append(va)
-                        if 'title' in ke and ("combined" in va):
-                            mo_xml_url = catalog_url + str(v) + '/'+str(va)+'/catalog.xml'
-                            mo_response = requests.get(mo_xml_url, verify=False)
-                            mo_tree = ET.fromstring(mo_response.content)
-                            for el in mo_tree.iter():
-                                for key, val in el.attrib.items():
-                                    if 'urlPath' in key:
-                                        tinf.setdefault(v, {}).setdefault(va, []).append(val)
-    json_obj['catalog'] = tinf
-    return json_obj
-
-def get_styles():
-    """Returns a list of style tuples"""
-    date_obj = {}
-
-    color_opts = [
-        {'Rainbow': 'rainbow'},
-        {'TMP 1': 'tmp_2maboveground'},
-        {'TMP 2': 'dpt_2maboveground'},
-        {'SST-36': 'sst_36'},
-        {'Greyscale': 'greyscale'},
-
-        {'OCCAM': 'occam'},
-        {'OCCAM Pastel': 'occam_pastel-30'},
-        {'Red-Blue': 'redblue'},
-        {'NetCDF Viewer': 'ncview'},
-        {'ALG': 'alg'},
-        {'ALG 2': 'alg2'},
-        {'Ferret': 'ferret'},
-        {'Reflectivity': 'enspmm-refc'},
-        {'PM25': 'pm25'},
-        {'Browse Color Scale': 'browse'},
-        # ('Probability', 'prob'),
-        # ('White-Blue', whiteblue'),
-        # ('Grace', 'grace'),
-    ]
-
-    date_obj = color_opts
-
-    return color_opts
-
 def get_time(freq, run_type, run_date):
     # Empty list to store the timeseries values
     ts = []
@@ -502,11 +390,6 @@ def get_poylgon_values(s_var, geom_data, freq, run_type, run_date):
 
             json_obj["plot"] = ts_plot
             json_obj["geom"] = geom
-            # if len(ts_plot) == 0:
-            #     logger.warn("The selected polygon has no data")
-            # else:
-            #     logger.info("PLOT POLYGON OBJECT : " + json.dumps(json_obj["plot"]))
-            # logger.info(json.dumps(json_obj["geom"]))
             json_obj_arr.append(json_obj)
     else:
         json_obj = {}
@@ -604,11 +487,6 @@ def get_poylgon_values(s_var, geom_data, freq, run_type, run_date):
 
         json_obj["plot"] = ts_plot
         json_obj["geom"] = geom
-        # if len(ts_plot) == 0:
-        #     logger.warn("The selected polygon has no data")
-        # else:
-        #     logger.info("PLOT POLYGON OBJECT : " + json.dumps(json_obj["plot"]))
-        # logger.info(json.dumps(json_obj["geom"]))
         return json_obj
     return json_obj_arr
 
@@ -1269,15 +1147,6 @@ def get_city_pm25_timeseries(area_id, init_date, adm_lvl):
             ORDER BY pm25t.forecast_time desc
             LIMIT 200) ORDER BY forecast_time; 
             """
-            # query = """
-            #     SELECT pm25t.area_name, pm25t.area_id, pm25t.min, pm25t.max, pm25t.average, pm25t.forecast_time, pm25t.init_date, c.lat, c.lon, c.adm0_name """+addon+"""
-            #     FROM main_pm25 AS pm25t
-            #     JOIN """+table+""" as c
-            #     ON pm25t.area_id = c."""+att+"""
-            #     WHERE pm25t.area_id = """ + area_id + """ AND pm25t.init_date = '""" + init_date + """'
-            #     ORDER BY pm25t.average desc;
-            # """
-
             cursor.execute(query, (area_id, init_date))
             rows = cursor.fetchall()
             results = []
@@ -1309,49 +1178,6 @@ def get_city_pm25_timeseries(area_id, init_date, adm_lvl):
         }
 
     return result
-
-# def get_city_pm25_timeseries(idc, init_date):
-#     try:
-#         with connections['default'].cursor() as cursor:
-#             query = """
-#             SELECT * FROM (SELECT pm25t.id, pm25t.pm25, pm25t.idc, pm25t.forecast_time, pm25t.init_date, c.country, c.city, c.lat, c.lon
-#             FROM main_citypm25 AS pm25t
-#             JOIN main_city AS c ON pm25t.idc = c.idc
-#             WHERE c.idc = %s AND init_date = %s
-#             ORDER BY pm25t.forecast_time desc
-#             LIMIT 200) ORDER BY forecast_time; 
-#             """
-#             cursor.execute(query, (idc, init_date))
-#             rows = cursor.fetchall()
-#             results = []
-
-#             # Append each row's data to the results list
-#             for row in rows:
-#                 results.append(row)
-
-#             if not results:
-#                 result = {
-#                     'status': 'Error',
-#                     'message': 'No data found for the specified observation date',
-#                     'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-#                     'data': []
-#                 }
-#             else:
-#                 result = {
-#                     'status': 'Success',
-#                     'data': results
-#                 }
-                
-
-#     except Exception as e:
-#         result = {
-#             'status': 'Error',
-#             'message': f'Error: {str(e)}',
-#             'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-#             'data': []
-#         }
-
-#     return result
 
 def get_location():
     try:
@@ -1464,7 +1290,6 @@ def get_province_list():
                     'data': results
                 }
                 
-
     except Exception as e:
         result = {
             'status': 'Error',
@@ -1517,3 +1342,96 @@ def get_pm25(forecast_date, init_date):
             'data': []
         }
     return result
+
+
+import json
+
+def get_daily_pm25_time_series(start_date, end_date, area_ids):
+    """
+    Retrieves time-series PM2.5 data with daily averages, filtered by start_date, end_date, and multiple area_ids.
+    Considers only rows where forecast_time's date matches init_date.
+    Groups by init_date and area_id.
+
+    Args:
+        start_date (str): The start date in 'YYYY-MM-DD' format.
+        end_date (str): The end date in 'YYYY-MM-DD' format.
+        area_ids (str): A JSON string representation of a list of area IDs (e.g., "[39, 40, 41]").
+
+    Returns:
+        dict: A dictionary containing the query status, message, and data.
+    """
+    try:
+        # Parse area_ids into a Python list
+        try:
+            area_ids = json.loads(area_ids)  # Convert JSON-like string to a Python list
+            if not isinstance(area_ids, list):
+                raise ValueError("area_ids must be a list")
+            area_ids = [int(id) for id in area_ids]  # Ensure all IDs are integers
+        except json.JSONDecodeError:
+            return {
+                'status': 'Error',
+                'message': 'Invalid area_ids format. Expected a JSON list (e.g., [39, 40, 41]).',
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'data': []
+            }
+
+        with connections['default'].cursor() as cursor:
+            # Create placeholders for area_ids
+            area_ids_placeholder = ', '.join(['%s'] * len(area_ids))
+
+            # SQL Query
+            query = f"""
+                SELECT 
+                    pm25t.init_date, 
+                    pm25t.area_id,
+                    pm25t.area_name,
+                    AVG(pm25t.average) AS daily_avg_pm25
+                FROM main_PM25 AS pm25t
+                WHERE pm25t.init_date BETWEEN %s AND %s
+                  AND pm25t.area_id IN ({area_ids_placeholder})
+                  AND DATE(pm25t.forecast_time) = pm25t.init_date
+                GROUP BY pm25t.init_date, pm25t.area_id, pm25t.area_name
+                ORDER BY pm25t.init_date, pm25t.area_id;
+            """
+
+            # Combine the parameters for the query
+            params = [start_date, end_date] + area_ids
+            cursor.execute(query, params)
+            rows = cursor.fetchall()
+
+            # Process the results
+            results = []
+            for row in rows:
+                results.append({
+                    "init_date": row[0],
+                    "area_id": row[1],
+                    "area_name": row[2],
+                    "daily_avg_pm25": round(row[3], 2),
+                })
+
+            # Handle no results
+            if not results:
+                result = {
+                    'status': 'Error',
+                    'message': 'No data found for the specified parameters',
+                    'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'data': []
+                }
+            else:
+                result = {
+                    'status': 'Success',
+                    'message': 'Data retrieved successfully',
+                    'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'data': results
+                }
+
+    except Exception as e:
+        result = {
+            'status': 'Error',
+            'message': f'Error: {str(e)}',
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'data': []
+        }
+
+    return result
+

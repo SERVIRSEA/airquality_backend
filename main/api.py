@@ -35,7 +35,8 @@ def api(request):
             'get-province-list',
             'get-data-pm25-province-dash',
             'get-data-no2',
-            'get-daily-average-pm25-timeseries'
+            'get-daily-average-pm25-timeseries',
+            'get-pm25-country'
         ]
 
         if action in request_methods:
@@ -167,6 +168,13 @@ def api(request):
             
             elif action == 'get-daily-average-pm25-timeseries':
                 data = get_daily_pm25_time_series(start_date, end_date, area_ids)
+                if data:
+                    return Response(data)
+                else:
+                    return Response({'error': 'No data found for your request.'}, status=status.HTTP_404_NOT_FOUND)
+            
+            elif action == 'get-pm25-country':
+                data = get_adm_pm25_country(forecast_date, init_date, adm_lvl, area_id)
                 if data:
                     return Response(data)
                 else:

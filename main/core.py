@@ -931,6 +931,81 @@ def get_adm_pm25_dash(forecast_date, init_date, adm_lvl, area_id):
         }
     return result
 
+
+
+def get_adm_pm25_country(forecast_date, init_date, adm_lvl, area_id):
+    cond = ""
+    adm ="country"
+    try:
+        with connections['default'].cursor() as cursor:
+            if adm_lvl == 'country':
+                table = 'main_country_table'
+                addon = ''
+                att =  'adm0_id'
+                adm == 'country'
+            elif adm_lvl == 'province':
+                table = 'main_province_table'
+                addon = ''
+                att =  'adm1_id'
+                adm == 'province'
+            elif adm_lvl == 'district':
+                table = 'main_district_table'
+                addon = ', c.adm1_name'
+                att =  'adm2_id'
+                
+            query = """
+                SELECT pm25t.area_name, pm25t.area_id, 
+                COALESCE(NULLIF(pm25t.min, 'NaN'), 0) as min, 
+                COALESCE(NULLIF(pm25t.max, 'NaN'), 0) as max, 
+                COALESCE(NULLIF(pm25t.average, 'NaN'), 0) as average, 
+                pm25t.forecast_time, pm25t.init_date, c.lat, c.lon, c.adm0_name, firm24.firmcount, firm48.firmcount  """+addon+"""
+                FROM main_pm25 AS pm25t
+                JOIN """+table+""" as c
+                    ON pm25t.area_id = c."""+att+"""
+                JOIN main_country_table as cc
+                    ON c.adm0_gid = cc.adm0_gid
+                LEFT JOIN main_firm24h AS firm24
+                    ON pm25t.area_id = firm24.area_id 
+                    AND pm25t.adm_lvl = firm24.adm_lvl 
+                    AND DATE(pm25t.forecast_time) = firm24.init_date
+                LEFT JOIN main_firm48h AS firm48
+                    ON pm25t.area_id = firm48.area_id 
+                    AND pm25t.adm_lvl = firm48.adm_lvl 
+                    AND DATE(pm25t.forecast_time) = firm48.init_date
+                WHERE pm25t.forecast_time = '"""+ forecast_date +"""' AND pm25t.init_date = '""" + init_date + """' AND pm25t.adm_lvl = 'country' """+cond+"""
+                ORDER BY pm25t.average desc;
+            """
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            results = []
+
+            # Append each row's data to the results list
+            for row in rows:
+                results.append(row)
+
+            if not results:
+                result = {
+                    'status': 'Error',
+                    'message': 'No data found for the specified observation date',
+                    'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'data': []
+                }
+            else:
+                result = {
+                    'status': 'Success',
+                    'data': results
+                }
+            
+    except Exception as e:
+        result = {
+            'status': 'Error',
+            'message': f'Error: {str(e)}',
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'data': []
+        }
+    return result
+
+
 def get_pm25_province_dash(forecast_date, init_date, adm_lvl, area_id):
     cond = ""
     try:
